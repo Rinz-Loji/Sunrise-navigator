@@ -3,8 +3,8 @@
 import { generateMotivationalMessage } from '@/ai/flows/motivational-message-generator';
 import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyzer-flow';
 import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
-import type { BriefingData, MotivationalQuote, TrafficData, WeatherData } from './types';
-import { z } from 'zod';
+import { getNewsHeadlines as getNewsHeadlinesFlow } from '@/ai/flows/news-flow';
+import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, WeatherData } from './types';
 
 // Mock function to simulate API calls
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -25,6 +25,10 @@ export async function getWeatherData(input: {
     });
 }
 
+export async function getNewsHeadlines(): Promise<NewsHeadline[]> {
+  return getNewsHeadlinesFlow();
+}
+
 
 export async function getBriefingData(
   home: string,
@@ -43,11 +47,14 @@ export async function getBriefingData(
       destination: destination,
     }));
   
-  const weatherData = await getWeatherData({
+  const [weatherData, newsData] = await Promise.all([
+    getWeatherData({
       location: weatherLocation,
-  });
+    }),
+    getNewsHeadlines(),
+  ]);
 
-  // In a real app, you would fetch from Google Calendar and News API
+  // In a real app, you would fetch from Google Calendar API
   const mockData: BriefingData = {
     weather: weatherData,
     traffic: trafficData,
@@ -55,11 +62,7 @@ export async function getBriefingData(
       title: 'Q2 Planning Session',
       time: '9:00 AM',
     },
-    news: [
-      { id: '1', title: 'Tech Giant Announces New AI Breakthrough', source: 'Tech News' },
-      { id: '2', title: 'Global Markets React to Economic Data', source: 'Finance Times' },
-      { id: '3', title: 'New Study on Coffee and Productivity Released', source: 'Science Daily' },
-    ],
+    news: newsData,
   };
 
   return mockData;
