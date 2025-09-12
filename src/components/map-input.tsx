@@ -105,7 +105,7 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
         console.error("Failed to initialize TomTom SearchBox:", error);
     }
 
-  }, [isSdkLoaded, placeholder, onChange, value]);
+  }, [isSdkLoaded, placeholder]);
 
   if (!apiKey) {
     return (
