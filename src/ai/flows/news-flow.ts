@@ -16,6 +16,12 @@ const NewsOutputSchema = z.array(z.object({
   source: z.string().describe('The source of the news article.'),
 }));
 
+const sampleNews: NewsHeadline[] = [
+    { id: 'sample-1', title: 'To get live news, add your NEWS_API_KEY to the .env file.', source: 'Sunrise Navigator' },
+    { id: 'sample-2', title: 'Tech Stocks Surge in Pre-Market Trading', source: 'Financial Times' },
+    { id: 'sample-3', title: 'Scientists Discover New Planet in Nearby Galaxy', source: 'Science Daily' },
+];
+
 const getNewsTool = ai.defineTool(
   {
     name: 'getNewsTool',
@@ -26,8 +32,8 @@ const getNewsTool = ai.defineTool(
   async () => {
     const apiKey = process.env.NEWS_API_KEY;
     if (!apiKey) {
-      console.error('NEWS_API_KEY is not defined in the environment. Returning empty array.');
-      return [];
+      console.error('NEWS_API_KEY is not defined in the environment. Returning sample data.');
+      return sampleNews;
     }
 
     const url = `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${apiKey}`;
@@ -37,13 +43,13 @@ const getNewsTool = ai.defineTool(
       if (!response.ok) {
         const errorBody = await response.text();
         console.error(`News API call failed with status: ${response.status}. Body: ${errorBody}`);
-        return [];
+        return sampleNews;
       }
       
       const data: any = await response.json();
-      if (data.status !== 'ok' || !data.articles) {
-        console.log('News API did not return a successful status or articles.');
-        return [];
+      if (data.status !== 'ok' || !data.articles || data.articles.length === 0) {
+        console.log('News API did not return a successful status or articles. Returning sample data.');
+        return sampleNews;
       }
 
       return data.articles.map((article: any) => ({
@@ -54,7 +60,7 @@ const getNewsTool = ai.defineTool(
 
     } catch (error) {
       console.error('Error fetching news data:', error);
-      return [];
+      return sampleNews;
     }
   }
 );
