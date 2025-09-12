@@ -4,7 +4,6 @@ import type { AlarmSettings } from '@/lib/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,13 +23,6 @@ import {
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Skeleton } from './ui/skeleton';
-
-const MapInput = dynamic(() => import('./map-input').then(mod => mod.MapInput), {
-  ssr: false,
-  loading: () => <Skeleton className="h-10 w-full" />,
-});
-
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -207,10 +199,9 @@ export function AlarmSetup({
                     Home Address
                   </FormLabel>
                   <FormControl>
-                    <MapInput
-                      placeholder="Search for your home address"
-                      value={field.value}
-                      onChange={field.onChange}
+                    <Input
+                      placeholder="Enter your home address"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -227,10 +218,9 @@ export function AlarmSetup({
                     Work/School Address
                   </FormLabel>
                   <FormControl>
-                    <MapInput
-                      placeholder="Search for your work/school address"
-                      value={field.value}
-                      onChange={field.onChange}
+                    <Input
+                      placeholder="Enter your work/school address"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
