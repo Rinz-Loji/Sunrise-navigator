@@ -105,7 +105,7 @@ export default function SunriseNavigator() {
       
       // 3. Fetch the rest of the data
       const [briefing, motd] = await Promise.all([
-        getBriefingData(alarmSettings.home, alarmSettings.destination, traffic),
+        getBriefingData(alarmSettings.home, alarmSettings.destination, alarmSettings.weatherLocation, alarmSettings.weatherApiKey, traffic),
         getMotivationalQuote('morning productivity'),
       ]);
       

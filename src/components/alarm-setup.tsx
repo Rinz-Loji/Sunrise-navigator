@@ -21,6 +21,8 @@ import {
   Loader2,
   BellRing,
   Music,
+  MapPin,
+  Key,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -47,6 +49,8 @@ const alarmSchema = z.object({
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
   alarmSound: z.string().url('Please select an alarm sound'),
+  weatherLocation: z.string().min(3, 'Weather location is required'),
+  weatherApiKey: z.string().min(1, 'Weather API key is required'),
 });
 
 export function AlarmSetup({
@@ -64,6 +68,8 @@ export function AlarmSetup({
       home: '123 Main St, Anytown',
       destination: '456 Office Ave, Workville',
       alarmSound: alarmSounds[0].url,
+      weatherLocation: 'New York, NY',
+      weatherApiKey: '',
     },
   });
 
@@ -143,6 +149,38 @@ export function AlarmSetup({
                 </FormItem>
               )}
             />
+             <FormField
+              control={form.control}
+              name="weatherLocation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Weather Location
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., London, UK" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="weatherApiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Key className="h-4 w-4" />
+                    Weather API Key
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Paste your API key here" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="home"
@@ -150,7 +188,7 @@ export function AlarmSetup({
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Home className="h-4 w-4" />
-                    Home Address
+                    Home Address (for Traffic)
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., 123 Main St, Anytown" {...field} />
@@ -166,7 +204,7 @@ export function AlarmSetup({
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4" />
-                    Work/School Address
+                    Work/School Address (for Traffic)
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., 456 Office Ave, Workville" {...field} />

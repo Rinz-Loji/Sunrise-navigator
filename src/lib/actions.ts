@@ -2,7 +2,8 @@
 
 import { generateMotivationalMessage } from '@/ai/flows/motivational-message-generator';
 import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyzer-flow';
-import type { BriefingData, MotivationalQuote, TrafficData } from './types';
+import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
+import type { BriefingData, MotivationalQuote, TrafficData, WeatherData } from './types';
 import { z } from 'zod';
 
 // Mock function to simulate API calls
@@ -16,10 +17,19 @@ export async function getTrafficInfo(input: {
   return getTrafficInfoFlow(input);
 }
 
+export async function getWeatherData(input: {
+  location: string;
+  apiKey: string;
+}): Promise<WeatherData> {
+    return getWeatherDataFlow(input);
+}
+
 
 export async function getBriefingData(
   home: string,
   destination: string,
+  weatherLocation: string,
+  weatherApiKey: string,
   trafficInfo?: TrafficData
 ): Promise<BriefingData> {
   // We don't need to simulate a long delay if we're just fetching supplementary data
@@ -32,14 +42,15 @@ export async function getBriefingData(
       origin: home,
       destination: destination,
     }));
+  
+  const weatherData = await getWeatherData({
+      location: weatherLocation,
+      apiKey: weatherApiKey,
+  });
 
-  // In a real app, you would fetch from OpenWeatherMap, Google Maps, Google Calendar, and News API
+  // In a real app, you would fetch from Google Calendar and News API
   const mockData: BriefingData = {
-    weather: {
-      temperature: 18,
-      condition: 'Partly Cloudy',
-      location: home.split(',')[1]?.trim() || 'Anytown',
-    },
+    weather: weatherData,
     traffic: trafficData,
     calendar: {
       title: 'Q2 Planning Session',

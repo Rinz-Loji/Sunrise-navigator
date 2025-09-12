@@ -39,4 +39,6 @@ export type AlarmSettings = {
   home: string;
   destination: string;
   alarmSound: string;
+  weatherLocation: string;
+  weatherApiKey: string;
 };
