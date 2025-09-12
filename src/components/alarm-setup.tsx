@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { validateAddress as validateAddressAction } from '@/lib/actions';
+import { useState } from 'react';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -67,6 +69,33 @@ export function AlarmSetup({
       weatherLocation: 'San Francisco, CA',
     },
   });
+
+  const [isvalidatingHome, setIsValidatingHome] = useState(false);
+  const [isValidatingDestination, setIsValidatingDestination] = useState(false);
+
+  const handleAddressValidation = async (
+    field: 'home' | 'destination',
+    value: string
+  ) => {
+    if (field === 'home') setIsValidatingHome(true);
+    if (field === 'destination') setIsValidatingDestination(true);
+
+    const result = await validateAddressAction({ address: value });
+    if (!result.isValid) {
+      form.setError(field, {
+        type: 'manual',
+        message: 'Please enter a valid address.',
+      });
+    } else {
+        if(result.formattedAddress){
+            form.setValue(field, result.formattedAddress, { shouldValidate: true });
+        }
+    }
+
+    if (field === 'home') setIsValidatingHome(false);
+    if (field === 'destination') setIsValidatingDestination(false);
+  };
+
 
   if (isAlarmSet) {
     return (
@@ -197,11 +226,13 @@ export function AlarmSetup({
                   <FormLabel className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     Home Address
+                    {isvalidatingHome && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your home address"
                       {...field}
+                      onBlur={() => handleAddressValidation('home', field.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -216,11 +247,13 @@ export function AlarmSetup({
                   <FormLabel className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     Work/School Address
+                     {isValidatingDestination && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your work/school address"
                       {...field}
+                      onBlur={() => handleAddressValidation('destination', field.value)}
                     />
                   </FormControl>
                   <FormMessage />

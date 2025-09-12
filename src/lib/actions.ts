@@ -4,6 +4,7 @@ import { generateMotivationalMessage } from '@/ai/flows/motivational-message-gen
 import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyzer-flow';
 import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
 import { getNewsHeadlines as getNewsHeadlinesFlow } from '@/ai/flows/news-flow';
+import { validateAddress as validateAddressFlow } from '@/ai/flows/address-validator-flow';
 import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, WeatherData } from './types';
 
 // Mock function to simulate API calls
@@ -26,6 +27,12 @@ export async function getWeatherData(input: {
 
 export async function getNewsHeadlines(): Promise<NewsHeadline[]> {
   return getNewsHeadlinesFlow();
+}
+
+export async function validateAddress(input: {
+    address: string;
+}): Promise<{isValid: boolean, formattedAddress?: string}> {
+    return validateAddressFlow(input);
 }
 
 
