@@ -36,7 +36,7 @@ const getNewsTool = ai.defineTool(
       return sampleNews;
     }
 
-    const url = `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${apiKey}`;
+    const url = `https://newsapi.org/v2/top-headlines?country=us&pageSize=3&apiKey=${apiKey}`;
 
     try {
       const response = await fetch(url);
