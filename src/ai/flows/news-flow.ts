@@ -30,7 +30,7 @@ const getNewsTool = ai.defineTool(
       return [];
     }
 
-    const fetchHeadline = async (params: Record<string, string>) => {
+    const fetchHeadline = async (params: Record<string, string>): Promise<NewsHeadline | null> => {
       const query = new URLSearchParams({ country: 'in', pageSize: '1', apiKey, ...params });
       const url = `https://newsapi.org/v2/top-headlines?${query}`;
       try {
@@ -56,34 +56,47 @@ const getNewsTool = ai.defineTool(
       }
     };
 
+    const headlines: NewsHeadline[] = [];
+    
     const categories = [
       { category: 'technology' },
-      { category: 'entertainment', q: 'movies' },
+      { category: 'entertainment' },
       { q: 'Kerala' },
     ];
-
-    const headlinesPromises = categories.map(params => fetchHeadline(params));
-    const results = await Promise.all(headlinesPromises);
-    const headlines = results.filter((headline): headline is NewsHeadline => headline !== null);
     
-    // Fetch more general headlines to have a total of 5 
-    const remainingHeadlinesCount = 5 - headlines.length;
-    if (remainingHeadlinesCount > 0) {
-         const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${remainingHeadlinesCount}&apiKey=${apiKey}`;
-         const response = await fetch(generalUrl);
-         if (response.ok) {
-            const data: any = await response.json();
-            if(data.status === 'ok' && data.articles) {
-                const newHeadlines = data.articles.map((article: any) => ({
-                    id: article.url,
-                    title: article.title,
-                    source: article.source.name,
-                })).filter((h: NewsHeadline) => !headlines.some(existing => existing.id === h.id));
-                headlines.push(...newHeadlines);
-            }
-         }
+    // Fetch specific headlines sequentially
+    for (const params of categories) {
+      if (headlines.length >= 5) break;
+      const headline = await fetchHeadline(params);
+      if (headline && !headlines.some(h => h.id === headline.id)) {
+        headlines.push(headline);
+      }
     }
 
+    // Fetch more general headlines if we don't have 5 yet
+    const remainingHeadlinesCount = 5 - headlines.length;
+    if (remainingHeadlinesCount > 0) {
+      const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${remainingHeadlinesCount * 2}&apiKey=${apiKey}`;
+      try {
+        const response = await fetch(generalUrl);
+        if (response.ok) {
+          const data: any = await response.json();
+          if (data.status === 'ok' && data.articles) {
+            const newHeadlines = data.articles
+              .map((article: any) => ({
+                id: article.url,
+                title: article.title,
+                source: article.source.name,
+              }))
+              .filter((h: NewsHeadline) => !headlines.some(existing => existing.id === h.id));
+              
+            headlines.push(...newHeadlines);
+          }
+        }
+      } catch (error) {
+          console.error('Error fetching general news headlines:', error);
+      }
+    }
 
     return headlines.slice(0, 5);
   }
