@@ -14,26 +14,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlarmClock,
   Home,
   Briefcase,
   Loader2,
   BellRing,
-  Music,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 
 interface AlarmSetupProps {
-  onSetAlarm: (settings: AlarmSettings) => void;
+  onSetAlarm: (settings: Omit<AlarmSettings, 'musicQuery'>) => void;
   onCancelAlarm: () => void;
   onSimulateAlarm: () => void;
   isAlarmSet: boolean;
@@ -45,16 +36,7 @@ const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
-  musicQuery: z.string().min(2, 'Please select a song'),
 });
-
-const predefinedSongs = [
-  "Good Morning by Kanye West",
-  "Here Comes The Sun by The Beatles",
-  "Walking on Sunshine by Katrina & The Waves",
-  "Lovely Day by Bill Withers",
-  "Mr. Blue Sky by Electric Light Orchestra",
-];
 
 export function AlarmSetup({
   onSetAlarm,
@@ -64,13 +46,12 @@ export function AlarmSetup({
   alarmTime,
   isSimulating,
 }: AlarmSetupProps) {
-  const form = useForm<AlarmSettings>({
+  const form = useForm<Omit<AlarmSettings, 'musicQuery'>>({
     resolver: zodResolver(alarmSchema),
     defaultValues: {
       time: '07:00',
       home: '123 Main St, Anytown',
       destination: '456 Office Ave, Workville',
-      musicQuery: predefinedSongs[1],
     },
   });
 
@@ -178,33 +159,6 @@ export function AlarmSetup({
                   <FormControl>
                     <Input placeholder="e.g., 456 Office Ave, Workville" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="musicQuery"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
-                    Wake-up Song
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a song" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {predefinedSongs.map((song) => (
-                        <SelectItem key={song} value={song}>
-                          {song}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

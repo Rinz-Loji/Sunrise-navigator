@@ -1,6 +1,5 @@
 'use server';
 
-import { findMusicVideo } from '@/ai/flows/youtube-search-flow';
 import { generateMotivationalMessage } from '@/ai/flows/motivational-message-generator';
 import type { BriefingData, MotivationalQuote } from './types';
 
@@ -63,8 +62,4 @@ export async function getMotivationalQuote(
       author: 'Mark Twain',
     };
   }
-}
-
-export async function getMusicVideo(query: string) {
-    return await findMusicVideo({ query });
 }

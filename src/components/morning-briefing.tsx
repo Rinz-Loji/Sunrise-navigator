@@ -14,14 +14,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { MusicPlayer } from './music-player';
+import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
-  videoId: string;
   onReset: () => void;
 }
 
@@ -95,19 +94,17 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
-  videoId,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+      <AlarmSound />
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
-      
-      <MusicPlayer videoId={videoId} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <WeatherCard data={briefingData.weather} />

@@ -4,25 +4,24 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { AlarmSetup } from '@/components/alarm-setup';
 import { MorningBriefing } from '@/components/morning-briefing';
-import { getBriefingData, getMotivationalQuote, getMusicVideo } from '@/lib/actions';
+import { getBriefingData, getMotivationalQuote } from '@/lib/actions';
 import type { AlarmSettings, BriefingData, MotivationalQuote } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { cn } from '@/lib/utils';
 
 export default function SunriseNavigator() {
-  const [alarmSettings, setAlarmSettings] = useState<AlarmSettings | null>(null);
+  const [alarmSettings, setAlarmSettings] = useState<Omit<AlarmSettings, 'musicQuery'> | null>(null);
   const [isAlarmSet, setIsAlarmSet] = useState(false);
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [briefingData, setBriefingData] = useState<BriefingData | null>(null);
   const [quote, setQuote] = useState<MotivationalQuote | null>(null);
-  const [videoId, setVideoId] = useState<string>('jfKfPfyJRdk'); // Default video
-
+  
   const { toast } = useToast();
   const backgroundImage = placeholderImages.placeholderImages[0];
 
-  const handleSetAlarm = (settings: AlarmSettings) => {
+  const handleSetAlarm = (settings: Omit<AlarmSettings, 'musicQuery'>) => {
     setAlarmSettings(settings);
     setIsAlarmSet(true);
     toast({
@@ -45,17 +44,13 @@ export default function SunriseNavigator() {
     setIsSimulating(true);
 
     try {
-      const [briefing, motd, music] = await Promise.all([
+      const [briefing, motd] = await Promise.all([
         getBriefingData(alarmSettings.home, alarmSettings.destination),
         getMotivationalQuote('morning productivity'),
-        getMusicVideo(alarmSettings.musicQuery),
       ]);
       
       setBriefingData(briefing);
       setQuote(motd);
-      if (music.videoId) {
-        setVideoId(music.videoId);
-      }
       
       setIsAlarmRinging(true);
     } catch (error) {
@@ -76,7 +71,6 @@ export default function SunriseNavigator() {
     setBriefingData(null);
     setQuote(null);
     setAlarmSettings(null);
-    setVideoId('jfKfPfyJRdk'); // Reset to default
   };
   
   return (
@@ -102,7 +96,6 @@ export default function SunriseNavigator() {
             briefingData={briefingData}
             quote={quote}
             alarmTime={alarmSettings?.time ?? ''}
-            videoId={videoId}
             onReset={handleReset}
           />
         )}
