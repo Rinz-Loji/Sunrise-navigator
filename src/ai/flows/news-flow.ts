@@ -66,12 +66,10 @@ const getNewsTool = ai.defineTool(
     const results = await Promise.all(headlinesPromises);
     const headlines = results.filter((headline): headline is NewsHeadline => headline !== null);
     
-    // Fetch 2 more general headlines to have a total of 5 if all succeed
-    const generalHeadlines = await fetchHeadline({pageSize: (5 - headlines.length).toString()});
-    if (generalHeadlines) {
-        // This is a bit of a hack as fetchHeadline returns one, but we can call it again or change it
-        // For now, we will just add the one
-         const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${5-headlines.length}&apiKey=${apiKey}`;
+    // Fetch more general headlines to have a total of 5 
+    const remainingHeadlinesCount = 5 - headlines.length;
+    if (remainingHeadlinesCount > 0) {
+         const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${remainingHeadlinesCount}&apiKey=${apiKey}`;
          const response = await fetch(generalUrl);
          if (response.ok) {
             const data: any = await response.json();
