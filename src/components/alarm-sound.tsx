@@ -1,22 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { forwardRef } from 'react';
 
-export function AlarmSound({ soundUrl }: { soundUrl: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
+interface AlarmSoundProps {
+  soundUrl: string;
+}
 
-  useEffect(() => {
-    if (audioRef.current) {
-        audioRef.current.src = soundUrl;
-        audioRef.current.play().catch(error => {
-            console.warn("Audio autoplay was blocked by the browser.", error);
-        });
-    }
-  }, [soundUrl]);
-
+export const AlarmSound = forwardRef<HTMLAudioElement, AlarmSoundProps>(({ soundUrl }, ref) => {
   return (
-    <audio ref={audioRef} loop>
+    <audio ref={ref} loop src={soundUrl}>
       Your browser does not support the audio element.
     </audio>
   );
-}
+});
+
+AlarmSound.displayName = 'AlarmSound';

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from 'react';
 import type { BriefingData, MotivationalQuote } from '@/lib/types';
 import {
   Cloudy,
@@ -11,6 +12,7 @@ import {
   Newspaper,
   Quote,
   MapPin,
+  VolumeX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
@@ -99,10 +101,33 @@ export function MorningBriefing({
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isAlarmPlaying, setIsAlarmPlaying] = useState(true);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(error => {
+        console.warn("Audio autoplay was blocked by the browser.", error);
+      });
+    }
+  }, []);
+
+  const handleStopAlarm = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsAlarmPlaying(false);
+  };
+  
+  const handleReset = () => {
+    handleStopAlarm();
+    onReset();
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <AlarmSound soundUrl={alarmSoundUrl} />
+      <AlarmSound ref={audioRef} soundUrl={alarmSoundUrl} />
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
@@ -118,8 +143,14 @@ export function MorningBriefing({
         </div>
       </div>
       
-      <div className="text-center">
-        <Button variant="outline" onClick={onReset}>
+      <div className="text-center flex items-center justify-center gap-4">
+        {isAlarmPlaying && (
+          <Button variant="destructive" onClick={handleStopAlarm}>
+            <VolumeX />
+            Stop Alarm
+          </Button>
+        )}
+        <Button variant="outline" onClick={handleReset}>
           End Briefing & Start Day
         </Button>
       </div>
