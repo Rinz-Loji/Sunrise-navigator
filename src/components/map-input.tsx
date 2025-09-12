@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import tt from '@tomtom-international/web-sdk-maps';
-import * as ttServices from '@tomtom-international/web-sdk-services';
+import ttServices from '@tomtom-international/web-sdk-services';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
@@ -56,7 +56,7 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
             marker.current.on('dragend', () => {
                 if(marker.current && apiKey) {
                     const lngLat = marker.current.getLngLat();
-                     ttServices.services.reverseGeocode({
+                     ttServices.reverseGeocode({
                         key: apiKey,
                         position: lngLat,
                     }).then(response => {
@@ -75,7 +75,7 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
   useEffect(() => {
     if (!apiKey) return;
     if (searchBoxRef.current) {
-        const searchBox = new ttServices.SearchBox(ttServices.services, {
+        const searchBox = new ttServices.SearchBox(ttServices, {
             searchOptions: {
                 key: apiKey,
                 language: 'en-GB',
