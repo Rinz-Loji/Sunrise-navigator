@@ -20,11 +20,13 @@ import {
   Briefcase,
   Loader2,
   BellRing,
+  Music,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface AlarmSetupProps {
-  onSetAlarm: (settings: Omit<AlarmSettings, 'musicQuery'>) => void;
+  onSetAlarm: (settings: AlarmSettings) => void;
   onCancelAlarm: () => void;
   onSimulateAlarm: () => void;
   isAlarmSet: boolean;
@@ -32,10 +34,19 @@ interface AlarmSetupProps {
   isSimulating: boolean;
 }
 
+const alarmSounds = [
+  { name: 'Classic Alarm', url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' },
+  { name: 'Digital Clock', url: 'https://actions.google.com/sounds/v1/alarms/digital_clock.ogg' },
+  { name: 'Bugle Call', url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' },
+  { name: 'Pleasant Bell', url: 'https://actions.google.com/sounds/v1/alarms/medium_bell_ringing_near.ogg' },
+  { name: 'Gentle Wake-up', url: 'https://actions.google.com/sounds/v1/alarms/gentle_soft_ring.ogg' },
+];
+
 const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
+  alarmSound: z.string().url('Please select an alarm sound'),
 });
 
 export function AlarmSetup({
@@ -46,12 +57,13 @@ export function AlarmSetup({
   alarmTime,
   isSimulating,
 }: AlarmSetupProps) {
-  const form = useForm<Omit<AlarmSettings, 'musicQuery'>>({
+  const form = useForm<AlarmSettings>({
     resolver: zodResolver(alarmSchema),
     defaultValues: {
       time: '07:00',
       home: '123 Main St, Anytown',
       destination: '456 Office Ave, Workville',
+      alarmSound: alarmSounds[0].url,
     },
   });
 
@@ -159,6 +171,33 @@ export function AlarmSetup({
                   <FormControl>
                     <Input placeholder="e.g., 456 Office Ave, Workville" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="alarmSound"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Music className="h-4 w-4" />
+                    Alarm Sound
+                  </FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an alarm sound" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {alarmSounds.map(sound => (
+                        <SelectItem key={sound.url} value={sound.url}>
+                          {sound.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

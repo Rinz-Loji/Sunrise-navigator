@@ -21,6 +21,7 @@ interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
+  alarmSoundUrl: string;
   onReset: () => void;
 }
 
@@ -94,13 +95,14 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
+  alarmSoundUrl,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <AlarmSound />
+      <AlarmSound soundUrl={alarmSoundUrl} />
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>

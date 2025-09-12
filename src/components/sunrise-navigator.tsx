@@ -11,7 +11,7 @@ import placeholderImages from '@/lib/placeholder-images.json';
 import { cn } from '@/lib/utils';
 
 export default function SunriseNavigator() {
-  const [alarmSettings, setAlarmSettings] = useState<Omit<AlarmSettings, 'musicQuery'> | null>(null);
+  const [alarmSettings, setAlarmSettings] = useState<AlarmSettings | null>(null);
   const [isAlarmSet, setIsAlarmSet] = useState(false);
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -21,7 +21,7 @@ export default function SunriseNavigator() {
   const { toast } = useToast();
   const backgroundImage = placeholderImages.placeholderImages[0];
 
-  const handleSetAlarm = (settings: Omit<AlarmSettings, 'musicQuery'>) => {
+  const handleSetAlarm = (settings: AlarmSettings) => {
     setAlarmSettings(settings);
     setIsAlarmSet(true);
     toast({
@@ -91,11 +91,12 @@ export default function SunriseNavigator() {
           'w-full'
         )}
       >
-        {isAlarmRinging && briefingData && quote && (
+        {isAlarmRinging && briefingData && quote && alarmSettings &&(
           <MorningBriefing
             briefingData={briefingData}
             quote={quote}
             alarmTime={alarmSettings?.time ?? ''}
+            alarmSoundUrl={alarmSettings.alarmSound}
             onReset={handleReset}
           />
         )}
