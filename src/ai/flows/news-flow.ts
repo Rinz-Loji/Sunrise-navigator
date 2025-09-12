@@ -36,12 +36,14 @@ const getNewsTool = ai.defineTool(
       try {
         const response = await fetch(url);
         if (!response.ok) {
-          console.error(`News API call failed for ${params.q || params.category} with status: ${response.status}`);
+          const errorBody = await response.text();
+          console.error(`News API call failed for ${params.q || params.category} with status: ${response.status}. Body: ${errorBody}`);
           return null;
         }
         const data: any = await response.json();
         if (data.status !== 'ok' || data.articles.length === 0) {
-          console.error('News API returned an error or no articles for:', params.q || params.category, data.message);
+          // This is not necessarily an error, could be no results.
+          console.log('News API returned 0 articles for:', params.q || params.category);
           return null;
         }
         const article = data.articles[0];
@@ -58,25 +60,28 @@ const getNewsTool = ai.defineTool(
 
     const headlines: NewsHeadline[] = [];
     
-    const categories = [
-      { category: 'technology' },
-      { category: 'entertainment' },
+    // The user requested: one from Kerala, one from Technology, and one from movies.
+    const specificSearches = [
       { q: 'Kerala' },
+      { category: 'technology' },
+      { q: 'movies' },
     ];
     
-    // Fetch specific headlines sequentially
-    for (const params of categories) {
+    // Fetch specific headlines first.
+    for (const params of specificSearches) {
       if (headlines.length >= 5) break;
       const headline = await fetchHeadline(params);
+      // Ensure the headline is not null and not already in the list
       if (headline && !headlines.some(h => h.id === headline.id)) {
         headlines.push(headline);
       }
     }
 
-    // Fetch more general headlines if we don't have 5 yet
-    const remainingHeadlinesCount = 5 - headlines.length;
-    if (remainingHeadlinesCount > 0) {
-      const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${remainingHeadlinesCount * 2}&apiKey=${apiKey}`;
+    // Now, fetch more general headlines if we don't have enough.
+    const needed = 5 - headlines.length;
+    if (needed > 0) {
+      // Fetch more than we need to account for potential duplicates
+      const generalUrl = `https://newsapi.org/v2/top-headlines?country=in&pageSize=${needed * 2}&apiKey=${apiKey}`;
       try {
         const response = await fetch(generalUrl);
         if (response.ok) {
@@ -88,16 +93,22 @@ const getNewsTool = ai.defineTool(
                 title: article.title,
                 source: article.source.name,
               }))
+              // Filter out any articles we already have
               .filter((h: NewsHeadline) => !headlines.some(existing => existing.id === h.id));
               
+            // Add the new unique headlines to our list until we have 5
             headlines.push(...newHeadlines);
           }
+        } else {
+             const errorBody = await response.text();
+             console.error(`General News API call failed with status: ${response.status}. Body: ${errorBody}`);
         }
       } catch (error) {
           console.error('Error fetching general news headlines:', error);
       }
     }
-
+    
+    // Return the first 5 headlines.
     return headlines.slice(0, 5);
   }
 );
