@@ -6,6 +6,8 @@ import * as ttServices from '@tomtom-international/web-sdk-services';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 interface MapInputProps {
   value?: string;
@@ -14,7 +16,7 @@ interface MapInputProps {
   id?: string;
 }
 
-const apiKey = process.env.NEXT_PUBLIC_TOMTOM_API_KEY!;
+const apiKey = process.env.NEXT_PUBLIC_TOMTOM_API_KEY;
 
 export function MapInput({ value = '', onChange, placeholder, id }: MapInputProps) {
   const mapElement = useRef<HTMLDivElement>(null);
@@ -25,6 +27,10 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
+    if (!apiKey) {
+        console.error("TomTom API key is not configured.");
+        return;
+    }
     if (!map.current && mapElement.current) {
       map.current = tt.map({
         key: apiKey,
@@ -48,7 +54,7 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
                 .addTo(map.current);
             
             marker.current.on('dragend', () => {
-                if(marker.current) {
+                if(marker.current && apiKey) {
                     const lngLat = marker.current.getLngLat();
                      ttServices.services.reverseGeocode({
                         key: apiKey,
@@ -67,6 +73,7 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
   }
 
   useEffect(() => {
+    if (!apiKey) return;
     if (searchBoxRef.current) {
         const searchBox = new ttServices.SearchBox(ttServices.services, {
             searchOptions: {
@@ -106,12 +113,26 @@ export function MapInput({ value = '', onChange, placeholder, id }: MapInputProp
 
         return () => {
              if (searchBoxRef.current) {
-                searchBox.getSearchBoxHTML().remove();
+                // Check if the element is still there before removing
+                if(searchBoxRef.current.contains(searchBox.getSearchBoxHTML())) {
+                    searchBox.getSearchBoxHTML().remove();
+                }
              }
         }
     }
   }, [placeholder, onChange, value]);
 
+  if (!apiKey) {
+    return (
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Configuration Error</AlertTitle>
+            <AlertDescription>
+                The TomTom API key is missing. Please add it to your environment variables to use the map feature.
+            </AlertDescription>
+        </Alert>
+    )
+  }
 
   return (
     <div className="space-y-2 relative" id={id}>
