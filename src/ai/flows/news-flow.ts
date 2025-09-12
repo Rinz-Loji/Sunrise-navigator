@@ -26,7 +26,8 @@ const getNewsTool = ai.defineTool(
   async () => {
     const apiKey = process.env.NEWS_API_KEY;
     if (!apiKey) {
-      throw new Error('NEWS_API_KEY is not defined in the environment.');
+      console.error('NEWS_API_KEY is not defined in the environment. Returning empty array.');
+      return [];
     }
 
     const url = `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${apiKey}`;
@@ -61,7 +62,7 @@ const getNewsTool = ai.defineTool(
 const newsFlow = ai.defineFlow(
   {
     name: 'newsFlow',
-    inputSchema: z.undefined(),
+    inputSchema: z.object({}),
     outputSchema: NewsOutputSchema,
   },
   async () => {
@@ -70,5 +71,5 @@ const newsFlow = ai.defineFlow(
 );
 
 export async function getNewsHeadlines(): Promise<NewsHeadline[]> {
-  return await newsFlow();
+  return await newsFlow({});
 }
