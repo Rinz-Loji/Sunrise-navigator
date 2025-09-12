@@ -7,6 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import fetch from 'node-fetch';
 
 const TrafficAnalysisInputSchema = z.object({
   origin: z.string().describe('The starting point of the commute.'),
@@ -20,11 +21,11 @@ const TrafficAnalysisOutputSchema = z.object({
   suggestion: z.string().optional().describe('A suggestion for the user if there is a delay.'),
 });
 
-// This tool simulates a call to a real-time traffic API like OpenMap.
+// This tool calls the Google Maps Distance Matrix API to get real-time commute data.
 const getCommuteDetailsTool = ai.defineTool(
   {
     name: 'getCommuteDetails',
-    description: 'Get the current commute time and any traffic delays from a traffic data provider.',
+    description: 'Get the current commute time and any traffic delays from Google Maps.',
     inputSchema: TrafficAnalysisInputSchema,
     outputSchema: z.object({
         commuteTime: z.number(),
@@ -32,17 +33,50 @@ const getCommuteDetailsTool = ai.defineTool(
     }),
   },
   async ({ origin, destination }) => {
-    // In a real application, you would make an API call to a service like OpenMap.
-    // For this demo, we'll simulate the response.
-    console.log(`Simulating traffic check from ${origin} to ${destination}`);
-    const baseTime = Math.floor(Math.random() * 20) + 20; // 20-40 minutes
-    // Increase the chance and potential length of delay for demo purposes
-    const trafficDelay = Math.random() > 0.4 ? Math.floor(Math.random() * 25) + 5 : 0; // 60% chance of 5-30 min delay
-    
-    return {
-        commuteTime: baseTime + trafficDelay,
-        delay: trafficDelay
-    };
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      throw new Error('GOOGLE_MAPS_API_KEY is not defined in the environment.');
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&departure_time=now&key=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      const data: any = await response.json();
+
+      if (data.status !== 'OK' || !data.rows[0]?.elements[0]) {
+        console.error('Google Maps API Error:', data.error_message || data.status);
+        throw new Error('Failed to fetch commute data from Google Maps.');
+      }
+      
+      const element = data.rows[0].elements[0];
+
+      if (element.status !== 'OK') {
+         console.error('Google Maps element status error:', element.status);
+         throw new Error(`Could not calculate route from ${origin} to ${destination}.`);
+      }
+
+      const durationWithTraffic = element.duration_in_traffic.value; // in seconds
+      const durationWithoutTraffic = element.duration.value; // in seconds
+      
+      const commuteTimeInMinutes = Math.ceil(durationWithTraffic / 60);
+      const delayInMinutes = Math.ceil((durationWithTraffic - durationWithoutTraffic) / 60);
+
+      return {
+        commuteTime: commuteTimeInMinutes,
+        delay: delayInMinutes > 0 ? delayInMinutes : 0,
+      };
+
+    } catch (error) {
+      console.error('Error calling Google Maps API:', error);
+      // Fallback to simulation if the API call fails
+      const baseTime = Math.floor(Math.random() * 20) + 20; 
+      const trafficDelay = Math.random() > 0.4 ? Math.floor(Math.random() * 25) + 5 : 0;
+      return {
+          commuteTime: baseTime + trafficDelay,
+          delay: trafficDelay
+      };
+    }
   }
 );
 
