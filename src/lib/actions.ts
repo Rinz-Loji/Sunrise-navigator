@@ -22,7 +22,6 @@ export async function getWeatherData(input: {
 }): Promise<WeatherData> {
     return getWeatherDataFlow({
         location: input.location,
-        apiKey: process.env.WEATHER_API_KEY || '',
     });
 }
 

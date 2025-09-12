@@ -10,7 +10,6 @@ import { z } from 'zod';
 
 const WeatherInputSchema = z.object({
   location: z.string().describe('The location for which to fetch the weather.'),
-  apiKey: z.string().describe('The API key for the weather service.'),
 });
 
 const WeatherOutputSchema = z.object({
@@ -30,10 +29,10 @@ const getWeatherDetailsTool = ai.defineTool(
         condition: z.string(),
     }),
   },
-  async ({ location, apiKey }) => {
+  async ({ location }) => {
     // In a real application, you would make an API call to a service like OpenWeatherMap.
     // For this demo, we'll simulate the response.
-    console.log(`Simulating weather check for ${location} with API key: ${apiKey ? 'provided' : 'missing'}`);
+    console.log(`Simulating weather check for ${location}`);
     
     // Simulate different weather based on location string
     let temp, cond;
