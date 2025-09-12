@@ -16,6 +16,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AlarmClock,
   Home,
   Briefcase,
@@ -23,6 +30,7 @@ import {
   BellRing,
   Music,
 } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -37,8 +45,16 @@ const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
-  musicQuery: z.string().min(2, 'Please enter a song'),
+  musicQuery: z.string().min(2, 'Please select a song'),
 });
+
+const predefinedSongs = [
+  "Good Morning by Kanye West",
+  "Here Comes The Sun by The Beatles",
+  "Walking on Sunshine by Katrina & The Waves",
+  "Lovely Day by Bill Withers",
+  "Mr. Blue Sky by Electric Light Orchestra",
+];
 
 export function AlarmSetup({
   onSetAlarm,
@@ -48,17 +64,13 @@ export function AlarmSetup({
   alarmTime,
   isSimulating,
 }: AlarmSetupProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<AlarmSettings>({
+  const form = useForm<AlarmSettings>({
     resolver: zodResolver(alarmSchema),
     defaultValues: {
       time: '07:00',
       home: '123 Main St, Anytown',
       destination: '456 Office Ave, Workville',
-      musicQuery: 'Peaceful morning music',
+      musicQuery: predefinedSongs[1],
     },
   });
 
@@ -119,67 +131,92 @@ export function AlarmSetup({
           Enter your details for a personalized morning.
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSetAlarm)}>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="time" className="flex items-center gap-2">
-              <AlarmClock className="h-4 w-4" />
-              Wake-up Time
-            </Label>
-            <Input id="time" type="time" {...register('time')} />
-            {errors.time && (
-              <p className="text-sm text-destructive">{errors.time.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="home" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Home Address
-            </Label>
-            <Input
-              id="home"
-              placeholder="e.g., 123 Main St, Anytown"
-              {...register('home')}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSetAlarm)}>
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <AlarmClock className="h-4 w-4" />
+                    Wake-up Time
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.home && (
-              <p className="text-sm text-destructive">{errors.home.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="destination" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              Work/School Address
-            </Label>
-            <Input
-              id="destination"
-              placeholder="e.g., 456 Office Ave, Workville"
-              {...register('destination')}
+            <FormField
+              control={form.control}
+              name="home"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Home className="h-4 w-4" />
+                    Home Address
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 123 Main St, Anytown" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.destination && (
-              <p className="text-sm text-destructive">{errors.destination.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="musicQuery" className="flex items-center gap-2">
-              <Music className="h-4 w-4" />
-              Wake-up Song
-            </Label>
-            <Input
-              id="musicQuery"
-              placeholder="e.g., 'lofi hip hop radio'"
-              {...register('musicQuery')}
+            <FormField
+              control={form.control}
+              name="destination"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    Work/School Address
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 456 Office Ave, Workville" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.musicQuery && (
-              <p className="text-sm text-destructive">{errors.musicQuery.message}</p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full">
-            Set Alarm
-          </Button>
-        </CardFooter>
-      </form>
+            <FormField
+              control={form.control}
+              name="musicQuery"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Music className="h-4 w-4" />
+                    Wake-up Song
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a song" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {predefinedSongs.map((song) => (
+                        <SelectItem key={song} value={song}>
+                          {song}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" className="w-full">
+              Set Alarm
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
     </Card>
   );
 }
