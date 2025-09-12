@@ -1,7 +1,8 @@
 'use server';
 
 import { generateMotivationalMessage } from '@/ai/flows/motivational-message-generator';
-import type { BriefingData, MotivationalQuote } from './types';
+import { getTrafficInfo } from '@/ai/flows/traffic-analyzer-flow';
+import type { BriefingData, MotivationalQuote, TrafficData } from './types';
 
 // Mock function to simulate API calls
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -12,6 +13,11 @@ export async function getBriefingData(
 ): Promise<BriefingData> {
   await sleep(1500); // Simulate network delay
 
+  const trafficData: TrafficData = await getTrafficInfo({
+    origin: home,
+    destination: destination,
+  });
+
   // In a real app, you would fetch from OpenWeatherMap, Google Maps, Google Calendar, and News API
   const mockData: BriefingData = {
     weather: {
@@ -19,11 +25,7 @@ export async function getBriefingData(
       condition: 'Partly Cloudy',
       location: home.split(',')[1]?.trim() || 'Anytown',
     },
-    traffic: {
-      commuteTime: 25,
-      delay: 5,
-      destination: destination.split(',')[1]?.trim() || 'Workville',
-    },
+    traffic: trafficData,
     calendar: {
       title: 'Q2 Planning Session',
       time: '9:00 AM',

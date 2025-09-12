@@ -12,12 +12,14 @@ import {
   Newspaper,
   Quote,
   MapPin,
-  VolumeX
+  VolumeX,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
 import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -43,14 +45,38 @@ const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   </InfoCard>
 );
 
-const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => (
-  <InfoCard title="Your Commute" icon={Car}>
-    <div className="text-2xl font-bold">{data.commuteTime} mins</div>
-    <p className="text-xs text-muted-foreground">
-      {data.delay > 0 ? `+${data.delay} min delay` : 'No significant delay'} to {data.destination}
-    </p>
-  </InfoCard>
-);
+const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
+  const { toast } = useToast();
+  const hasSuggestion = data.suggestion && data.delay > 0;
+
+  const handleAdjust = () => {
+    toast({
+        title: "Suggestion Applied",
+        description: "Your schedule has been updated to accommodate the traffic delay."
+    })
+  }
+
+  return (
+    <InfoCard title="Your Commute" icon={Car}>
+      <div className="text-2xl font-bold">{data.commuteTime} mins</div>
+      <p className="text-xs text-muted-foreground">
+        {data.delay > 0 ? `+${data.delay} min delay` : 'No significant delay'} to {data.destination}
+      </p>
+      {hasSuggestion && (
+         <div className="mt-4 p-2 bg-amber-100/50 dark:bg-amber-900/20 rounded-lg border border-amber-200/50 dark:border-amber-900/50">
+            <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5"/>
+                <div>
+                    <p className="text-xs text-amber-800 dark:text-amber-200">{data.suggestion}</p>
+                    <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1" onClick={handleAdjust}>Adjust & Notify</Button>
+                </div>
+            </div>
+         </div>
+      )}
+    </InfoCard>
+  );
+};
+
 
 const CalendarCard = ({ data }: { data: BriefingData['calendar'] }) => (
   <InfoCard title="First Event" icon={CalendarDays}>

@@ -8,6 +8,7 @@ export type TrafficData = {
   commuteTime: number;
   delay: number;
   destination: string;
+  suggestion?: string;
 };
 
 export type CalendarEvent = {
