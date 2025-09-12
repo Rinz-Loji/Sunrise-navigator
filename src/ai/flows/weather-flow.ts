@@ -7,6 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import fetch from 'node-fetch';
 
 const WeatherInputSchema = z.object({
   location: z.string().describe('The location for which to fetch the weather.'),
@@ -30,28 +31,32 @@ const getWeatherDetailsTool = ai.defineTool(
     }),
   },
   async ({ location }) => {
-    // In a real application, you would make an API call to a service like OpenWeatherMap.
-    // For this demo, we'll simulate the response.
-    console.log(`Simulating weather check for ${location}`);
-    
-    // Simulate different weather based on location string
-    let temp, cond;
-    if (location.toLowerCase().includes('york')) {
-        temp = 12;
-        cond = 'Cloudy';
-    } else if (location.toLowerCase().includes('london')) {
-        temp = 15;
-        cond = 'Light Rain';
-    } else {
-        temp = 22;
-        cond = 'Sunny';
+    const apiKey = process.env.WEATHER_API_KEY;
+    if (!apiKey) {
+      throw new Error('WEATHER_API_KEY is not defined in the environment.');
     }
-    const randomFactor = (Math.random() - 0.5) * 4; // +/- 2 degrees
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
     
-    return {
-        temperature: Math.round(temp + randomFactor),
-        condition: cond,
-    };
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`API call failed with status: ${response.status}`);
+        // Fallback to simulation on API error
+        return { temperature: 18, condition: 'Clear Skies (Simulated)' };
+      }
+      
+      const data: any = await response.json();
+
+      return {
+        temperature: Math.round(data.main.temp),
+        condition: data.weather[0]?.main || 'Clear',
+      };
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+       // Fallback to simulation on network error
+      return { temperature: 18, condition: 'Clear Skies (Simulated)' };
+    }
   }
 );
 
