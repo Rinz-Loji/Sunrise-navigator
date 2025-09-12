@@ -28,12 +28,7 @@ import { Skeleton } from './ui/skeleton';
 
 const MapInput = dynamic(() => import('./map-input').then(mod => mod.MapInput), {
   ssr: false,
-  loading: () => (
-    <div className="space-y-2">
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-[250px] w-full" />
-    </div>
-  ),
+  loading: () => <Skeleton className="h-10 w-full" />,
 });
 
 
@@ -214,7 +209,8 @@ export function AlarmSetup({
                   <FormControl>
                     <MapInput
                       placeholder="Search for your home address"
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
@@ -233,7 +229,8 @@ export function AlarmSetup({
                   <FormControl>
                     <MapInput
                       placeholder="Search for your work/school address"
-                      {...field}
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
