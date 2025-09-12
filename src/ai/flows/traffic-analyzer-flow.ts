@@ -36,7 +36,8 @@ const getCommuteDetailsTool = ai.defineTool(
     // For this demo, we'll simulate the response.
     console.log(`Simulating traffic check from ${origin} to ${destination}`);
     const baseTime = Math.floor(Math.random() * 20) + 20; // 20-40 minutes
-    const trafficDelay = Math.random() > 0.6 ? Math.floor(Math.random() * 15) + 5 : 0; // 40% chance of delay
+    // Increase the chance and potential length of delay for demo purposes
+    const trafficDelay = Math.random() > 0.4 ? Math.floor(Math.random() * 25) + 5 : 0; // 60% chance of 5-30 min delay
     
     return {
         commuteTime: baseTime + trafficDelay,
@@ -56,9 +57,10 @@ const trafficAnalysisPrompt = ai.definePrompt({
   Your goal is to provide the user with their commute time and a helpful suggestion if there's a significant delay.
   
   1. Use the getCommuteDetails tool to fetch the latest traffic information for the user's route.
-  2. If the delay is greater than 5 minutes, create a friendly and concise suggestion. For example, "Traffic is heavier than usual. You might want to leave a few minutes early."
-  3. Do not provide a suggestion if the delay is 5 minutes or less.
-  4. Your final output must conform to the provided JSON schema.
+  2. If the delay is greater than 10 minutes, create a friendly and concise suggestion to leave earlier. For example, "Traffic is heavier than usual. You might want to leave a bit early to stay on schedule."
+  3. If the delay is between 5 and 10 minutes, just note that traffic is a bit slow.
+  4. Do not provide a suggestion if the delay is less than 5 minutes.
+  5. Your final output must conform to the provided JSON schema.
   
   Origin: {{{origin}}}
   Destination: {{{destination}}}`,
@@ -80,7 +82,7 @@ const trafficAnalyzerFlow = ai.defineFlow(
     // Pass the destination name through for display purposes
     return {
         ...output,
-        destination: input.destination.split(',')[1]?.trim() || 'Workville'
+        destination: input.destination.split(',')[0]?.trim() || 'Workville'
     };
   }
 );

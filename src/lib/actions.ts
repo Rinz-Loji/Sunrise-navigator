@@ -1,22 +1,37 @@
 'use server';
 
 import { generateMotivationalMessage } from '@/ai/flows/motivational-message-generator';
-import { getTrafficInfo } from '@/ai/flows/traffic-analyzer-flow';
+import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyzer-flow';
 import type { BriefingData, MotivationalQuote, TrafficData } from './types';
+import { z } from 'zod';
 
 // Mock function to simulate API calls
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Explicitly re-exporting to satisfy 'use server' constraints.
+export async function getTrafficInfo(input: {
+  origin: string;
+  destination: string;
+}): Promise<TrafficData> {
+  return getTrafficInfoFlow(input);
+}
+
+
 export async function getBriefingData(
   home: string,
-  destination: string
+  destination: string,
+  trafficInfo?: TrafficData
 ): Promise<BriefingData> {
-  await sleep(1500); // Simulate network delay
+  // We don't need to simulate a long delay if we're just fetching supplementary data
+  await sleep(500); 
 
-  const trafficData: TrafficData = await getTrafficInfo({
-    origin: home,
-    destination: destination,
-  });
+  // If traffic info isn't passed, fetch it.
+  const trafficData =
+    trafficInfo ??
+    (await getTrafficInfo({
+      origin: home,
+      destination: destination,
+    }));
 
   // In a real app, you would fetch from OpenWeatherMap, Google Maps, Google Calendar, and News API
   const mockData: BriefingData = {
