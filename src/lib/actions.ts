@@ -9,7 +9,6 @@ import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, Weathe
 // Mock function to simulate API calls
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Explicitly re-exporting to satisfy 'use server' constraints.
 export async function getTrafficInfo(input: {
   origin: string;
   destination: string;
