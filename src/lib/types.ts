@@ -37,4 +37,5 @@ export type AlarmSettings = {
   time: string;
   home: string;
   destination: string;
+  musicQuery: string;
 };

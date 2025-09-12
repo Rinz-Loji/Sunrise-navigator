@@ -21,6 +21,7 @@ interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
+  videoId: string;
   onReset: () => void;
 }
 
@@ -94,6 +95,7 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
+  videoId,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
@@ -105,7 +107,7 @@ export function MorningBriefing({
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
       
-      <MusicPlayer />
+      <MusicPlayer videoId={videoId} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <WeatherCard data={briefingData.weather} />

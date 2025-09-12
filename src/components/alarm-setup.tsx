@@ -18,10 +18,10 @@ import { Label } from '@/components/ui/label';
 import {
   AlarmClock,
   Home,
-  MapPin,
   Briefcase,
   Loader2,
   BellRing,
+  Music,
 } from 'lucide-react';
 
 interface AlarmSetupProps {
@@ -37,6 +37,7 @@ const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
+  musicQuery: z.string().min(2, 'Please enter a song'),
 });
 
 export function AlarmSetup({
@@ -57,6 +58,7 @@ export function AlarmSetup({
       time: '07:00',
       home: '123 Main St, Anytown',
       destination: '456 Office Ave, Workville',
+      musicQuery: 'Peaceful morning music',
     },
   });
 
@@ -155,6 +157,20 @@ export function AlarmSetup({
             />
             {errors.destination && (
               <p className="text-sm text-destructive">{errors.destination.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="musicQuery" className="flex items-center gap-2">
+              <Music className="h-4 w-4" />
+              Wake-up Song
+            </Label>
+            <Input
+              id="musicQuery"
+              placeholder="e.g., 'lofi hip hop radio'"
+              {...register('musicQuery')}
+            />
+            {errors.musicQuery && (
+              <p className="text-sm text-destructive">{errors.musicQuery.message}</p>
             )}
           </div>
         </CardContent>
