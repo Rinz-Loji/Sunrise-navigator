@@ -19,9 +19,11 @@ export async function getTrafficInfo(input: {
 
 export async function getWeatherData(input: {
   location: string;
-  apiKey: string;
 }): Promise<WeatherData> {
-    return getWeatherDataFlow(input);
+    return getWeatherDataFlow({
+        location: input.location,
+        apiKey: process.env.WEATHER_API_KEY || '',
+    });
 }
 
 
@@ -29,7 +31,6 @@ export async function getBriefingData(
   home: string,
   destination: string,
   weatherLocation: string,
-  weatherApiKey: string,
   trafficInfo?: TrafficData
 ): Promise<BriefingData> {
   // We don't need to simulate a long delay if we're just fetching supplementary data
@@ -45,7 +46,6 @@ export async function getBriefingData(
   
   const weatherData = await getWeatherData({
       location: weatherLocation,
-      apiKey: weatherApiKey,
   });
 
   // In a real app, you would fetch from Google Calendar and News API
