@@ -58,9 +58,12 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
 
   return (
     <InfoCard title="Your Commute" icon={Car}>
-      <div className="text-2xl font-bold">{data.commuteTime} mins</div>
+      <div className="flex items-baseline gap-2">
+        <div className="text-2xl font-bold">{data.commuteTime} mins</div>
+        {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min</div>}
+      </div>
       <p className="text-xs text-muted-foreground">
-        {data.delay > 0 ? `+${data.delay} min delay` : 'No significant delay'} to {data.destination}
+        Estimated travel to {data.destination}
       </p>
       {hasSuggestion && (
          <div className="mt-4 p-2 bg-amber-100/50 dark:bg-amber-900/20 rounded-lg border border-amber-200/50 dark:border-amber-900/50">
