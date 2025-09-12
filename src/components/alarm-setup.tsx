@@ -16,16 +16,14 @@ import {
 import { Input } from '@/components/ui/input';
 import {
   AlarmClock,
-  Home,
-  Briefcase,
   Loader2,
   BellRing,
   Music,
   MapPin,
-  Key,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { MapInput } from './map-input';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -64,10 +62,10 @@ export function AlarmSetup({
     resolver: zodResolver(alarmSchema),
     defaultValues: {
       time: '07:00',
-      home: '123 Main St, Anytown',
-      destination: '456 Office Ave, Workville',
+      home: '1600 Amphitheatre Parkway, Mountain View, CA',
+      destination: '1 Market St, San Francisco, CA',
       alarmSound: alarmSounds[0].url,
-      weatherLocation: 'New York, NY',
+      weatherLocation: 'San Francisco, CA',
     },
   });
 
@@ -118,7 +116,7 @@ export function AlarmSetup({
   }
 
   return (
-    <Card className="w-full max-w-md shadow-lg">
+    <Card className="w-full max-w-2xl shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold">
           <AlarmClock className="h-6 w-6" />
@@ -131,49 +129,81 @@ export function AlarmSetup({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSetAlarm)}>
           <CardContent className="space-y-6">
-            <FormField
-              control={form.control}
-              name="time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <AlarmClock className="h-4 w-4" />
-                    Wake-up Time
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="time" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <AlarmClock className="h-4 w-4" />
+                        Wake-up Time
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="weatherLocation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Weather Location
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., London, UK" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="alarmSound"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Music className="h-4 w-4" />
+                        Alarm Sound
+                      </FormLabel>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an alarm sound" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {alarmSounds.map(sound => (
+                            <SelectItem key={sound.url} value={sound.url}>
+                              {sound.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
              <FormField
-              control={form.control}
-              name="weatherLocation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Weather Location
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., London, UK" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
               control={form.control}
               name="home"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    <Home className="h-4 w-4" />
-                    Home Address (for Traffic)
+                    <MapPin className="h-4 w-4" />
+                    Home Address
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 123 Main St, Anytown" {...field} />
+                    <MapInput
+                      placeholder="Search for your home address"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,39 +215,15 @@ export function AlarmSetup({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4" />
-                    Work/School Address (for Traffic)
+                    <MapPin className="h-4 w-4" />
+                    Work/School Address
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 456 Office Ave, Workville" {...field} />
+                    <MapInput
+                      placeholder="Search for your work/school address"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="alarmSound"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
-                    Alarm Sound
-                  </FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an alarm sound" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {alarmSounds.map(sound => (
-                        <SelectItem key={sound.url} value={sound.url}>
-                          {sound.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

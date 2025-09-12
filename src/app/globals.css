@@ -1,3 +1,4 @@
+@import 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,4 +67,43 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.map-container {
+    height: 250px;
+    width: 100%;
+    border-radius: var(--radius);
+}
+
+.tomtom-sdk-map-copyright, .tomtom-sdk-map-logo {
+    display: none !important;
+}
+
+.tt-search-box-input {
+    background-color: hsl(var(--input));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    padding: 0.5rem 1rem;
+    height: 40px;
+    border-radius: var(--radius);
+}
+.tt-search-box-input:focus {
+    border-color: hsl(var(--ring));
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+.tt-search-box-result-list {
+    background-color: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+}
+
+.tt-search-box-result {
+    color: hsl(var(--popover-foreground));
+}
+
+.tt-search-box-result.tt-search-box-result-focused {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
 }
