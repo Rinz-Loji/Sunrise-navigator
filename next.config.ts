@@ -30,6 +30,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.tomtom.com; connect-src 'self' *.tomtom.com; style-src 'self' 'unsafe-inline' *.tomtom.com; img-src 'self' data: *.tomtom.com; worker-src 'self' blob:; child-src 'self' blob:;",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
