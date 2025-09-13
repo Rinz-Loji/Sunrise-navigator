@@ -39,16 +39,16 @@ interface AlarmSetupProps {
 }
 
 const defaultSounds = [
-  { name: 'Classic Alarm', url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' },
-  { name: 'Digital Clock', url: 'https://actions.google.com/sounds/v1/alarms/digital_clock.ogg' },
-  { name: 'Bugle Call', url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' },
-  { name: 'Pleasant Bell', url: 'https://actions.google.com/sounds/v1/alarms/medium_bell_ringing_near.ogg' },
-  { name: 'Gentle Wake-up', url: 'https://actions.google.com/sounds/v1/alarms/gentle_soft_ring.ogg' },
-  { name: 'Winding Alarm', url: 'https://actions.google.com/sounds/v1/alarms/winding_alarm_clock.ogg' },
-  { name: 'Phone Ring', url: 'https://actions.google.com/sounds/v1/alarms/phone_alerts_and_rings.ogg' },
-  { name: 'Bird & Water Ambience', url: 'https://actions.google.com/sounds/v1/nature/ambient_water_and_birds.ogg' },
-  { name: 'Forest Sounds', url: 'https://actions.google.com/sounds/v1/nature/forest_with_light_wind_and_birds.ogg' },
-  { name: 'Light Rain', url: 'https://actions.google.com/sounds/v1/nature/light_rain_and_thunder.ogg' },
+  { name: 'Classic Alarm', url: 'https://cdn.pixabay.com/audio/2022/02/21/audio_1b2d23c104.mp3' },
+  { name: 'Digital Clock', url: 'https://cdn.pixabay.com/audio/2023/04/18/audio_2731df14c5.mp3' },
+  { name: 'Sci-Fi Alarm', url: 'https://cdn.pixabay.com/audio/2022/10/18/audio_a758d62559.mp3' },
+  { name: 'Pleasant Bell', url: 'https://cdn.pixabay.com/audio/2022/05-27/audio_8342f02636.mp3' },
+  { name: 'Gentle Wake-up', url: 'https://cdn.pixabay.com/audio/2022/06-08/audio_14545d96a8.mp3' },
+  { name: 'Bird Ambience', url: 'https://cdn.pixabay.com/audio/2023/10-04/audio_359302e7c5.mp3' },
+  { name: 'Forest Sounds', url: 'https://cdn.pixabay.com/audio/2024/02-23/audio_34444342a3.mp3' },
+  { name: 'Ocean Waves', url: 'https://cdn.pixabay.com/audio/2024/01-16/audio_98317374a9.mp3' },
+  { name: 'Calm Piano', url: 'https://cdn.pixabay.com/audio/2022/06-03/audio_73b2a26514.mp3' },
+  { name: 'Lofi Beat', url: 'https://cdn.pixabay.com/audio/2022/05-27/audio_8342f02636.mp3' }
 ];
 
 const alarmSchema = z.object({
