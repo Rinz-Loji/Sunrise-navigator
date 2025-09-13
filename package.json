@@ -38,7 +38,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tomtom-international/web-sdk-maps": "^6.25.0",
     "@tomtom-international/web-sdk-services": "^6.25.0",
-    "class-variance-authority": "^0.7.1",
+t    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.5.0",
