@@ -115,8 +115,8 @@ export function AlarmSetup({
     if (results.length === 0) {
         setNoResultsFound(true);
     } else {
-        setNoResultsFound(false);
         setMusicSearchResults(results);
+        setNoResultsFound(false);
     }
 
     setIsSearchingMusic(false);
@@ -367,3 +367,5 @@ export function AlarmSetup({
     </Card>
   );
 }
+
+    
