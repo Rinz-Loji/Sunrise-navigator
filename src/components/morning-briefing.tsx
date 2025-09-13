@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
 import { AlarmSound } from './alarm-sound';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
