@@ -33,5 +33,12 @@ export type AlarmSettings = {
   home: string;
   destination: string;
   alarmSound: string;
+  alarmSoundName?: string;
   weatherLocation: string;
+};
+
+export type MusicTrack = {
+  name: string;
+  artist: string;
+  url: string;
 };

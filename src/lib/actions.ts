@@ -5,7 +5,8 @@ import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyze
 import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
 import { getNewsHeadlines as getNewsHeadlinesFlow } from '@/ai/flows/news-flow';
 import { validateAddress as validateAddressFlow } from '@/ai/flows/address-validator-flow';
-import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, WeatherData } from './types';
+import { searchMusic as searchMusicFlow } from '@/ai/flows/deezer-search-flow';
+import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, WeatherData, MusicTrack } from './types';
 
 // Mock function to simulate API calls
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -33,6 +34,10 @@ export async function validateAddress(input: {
     address: string;
 }): Promise<{isValid: boolean, formattedAddress?: string}> {
     return validateAddressFlow(input);
+}
+
+export async function searchMusic(input: { query: string }): Promise<MusicTrack[]> {
+    return searchMusicFlow(input);
 }
 
 export async function getBriefingData(

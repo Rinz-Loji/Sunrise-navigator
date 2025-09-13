@@ -1,8 +1,8 @@
 'use server';
 
 /**
- * @fileOverview A flow to search for music tracks using the Audius API.
- * - searchMusic - A function that returns a list of tracks matching a query, including a playable stream URL.
+ * @fileOverview A flow to search for music tracks using the Deezer API.
+ * - searchMusic - A function that returns a list of tracks matching a query, including a playable preview URL.
  */
 
 import { ai } from '@/ai/genkit';
@@ -17,44 +17,42 @@ const MusicSearchInputSchema = z.object({
 const MusicSearchOutputSchema = z.array(z.object({
   name: z.string(),
   artist: z.string(),
-  url: z.string().describe("A playable stream URL for the track."),
+  url: z.string().describe("A playable preview URL for the track."),
 }));
 
 const searchMusicTool = ai.defineTool(
   {
     name: 'searchMusicTool',
-    description: 'Search for a music track on Audius and get a playable stream URL.',
+    description: 'Search for a music track on Deezer and get a playable preview URL.',
     inputSchema: MusicSearchInputSchema,
     outputSchema: MusicSearchOutputSchema,
   },
   async ({ query }) => {
-    // Audius API does not require an API key for public search.
-    // We add a unique app_name as recommended by their docs.
-    const url = `https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=SunriseNavigator`;
+    // The Deezer API search endpoint is publicly accessible without a key.
+    const url = `https://api.deezer.com/search?q=${encodeURIComponent(query)}`;
 
     try {
       const response = await fetch(url);
       const data: any = await response.json();
-
+      
       if (!data.data || data.data.length === 0) {
         return [];
       }
 
       const tracks = data.data;
       
-      // Map the tracks and construct the streamable URL.
+      // Filter out tracks that do not have a preview URL and map the results.
       return tracks
+        .filter((track: any) => track.preview && track.preview.length > 0)
         .slice(0, 5) // Limit to 5 results
         .map((track: any) => ({
             name: track.title,
-            artist: track.user.name,
-            // The stream URL can be constructed directly from the track ID.
-            // The /stream endpoint provides a redirect to the actual audio file.
-            url: `https://discoveryprovider.audius.co/v1/tracks/${track.id}/stream?app_name=SunriseNavigator`,
+            artist: track.artist.name,
+            url: track.preview, // This is a direct, playable MP3 link.
       }));
 
     } catch (error) {
-      console.error('Error calling Audius API:', error);
+      console.error('Error calling Deezer API:', error);
       return [];
     }
   }
@@ -62,7 +60,7 @@ const searchMusicTool = ai.defineTool(
 
 const musicSearchFlow = ai.defineFlow(
   {
-    name: 'audiusMusicSearchFlow',
+    name: 'deezerMusicSearchFlow',
     inputSchema: MusicSearchInputSchema,
     outputSchema: MusicSearchOutputSchema,
   },

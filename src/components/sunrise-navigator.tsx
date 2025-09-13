@@ -206,6 +206,7 @@ export default function SunriseNavigator() {
                             isAlarmSet={isAlarmSet}
                             alarmTime={alarmSettings?.time ?? null}
                             isSimulating={isSimulating}
+                            alarmSoundName={alarmSettings?.alarmSoundName}
                         />
                     </div>
                 )
