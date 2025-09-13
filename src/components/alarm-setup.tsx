@@ -109,12 +109,18 @@ export function AlarmSetup({
     if (field === 'destination') setIsValidatingDestination(false);
   };
 
+  const stopPreview = () => {
+    if (audioPreviewRef.current) {
+        audioPreviewRef.current.pause();
+        audioPreviewRef.current.currentTime = 0;
+        setIsPreviewing(false);
+    }
+  };
+
   const handlePreview = () => {
     if (audioPreviewRef.current) {
         if (isPreviewing) {
-            audioPreviewRef.current.pause();
-            audioPreviewRef.current.currentTime = 0;
-            setIsPreviewing(false);
+            stopPreview();
         } else {
             const selectedSoundUrl = form.getValues('alarmSound');
             audioPreviewRef.current.src = selectedSoundUrl;
@@ -283,7 +289,7 @@ export function AlarmSetup({
                                 field.onChange(value)
                                 const soundName = defaultSounds.find(s => s.url === value)?.name
                                 form.setValue('alarmSoundName', soundName)
-                                if (isPreviewing) handlePreview();
+                                stopPreview();
                             }} 
                             defaultValue={field.value}
                             >
@@ -303,7 +309,7 @@ export function AlarmSetup({
                             <Button type="button" variant="outline" size="icon" onClick={handlePreview}>
                                 {isPreviewing ? <PauseCircle /> : <PlayCircle />}
                             </Button>
-                            <audio ref={audioPreviewRef} onEnded={() => setIsPreviewing(false)} />
+                            <audio ref={audioPreviewRef} onEnded={stopPreview} />
                         </div>
                         <FormMessage />
                     </FormItem>
