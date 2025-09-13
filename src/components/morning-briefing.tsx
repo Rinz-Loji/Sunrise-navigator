@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+import { AlarmSound } from './alarm-sound';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -155,22 +156,6 @@ export function MorningBriefing({
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    // Create the audio object only on the client-side when the component mounts
-    audioRef.current = new Audio();
-    audioRef.current.loop = true;
-
-    // This is the cleanup function that will run when the component UNMOUNTS
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = ''; // Abort any active loading
-        audioRef.current = null;
-      }
-    };
-  }, []); // Empty dependency array ensures this runs only once on mount and unmount
-
-  useEffect(() => {
-    // This effect runs whenever alarmSoundUrl changes
     const audio = audioRef.current;
     if (audio && alarmSoundUrl) {
       audio.src = alarmSoundUrl;
@@ -178,10 +163,16 @@ export function MorningBriefing({
         setIsSoundPlaying(true);
       }).catch(error => {
         console.error("Audio play failed:", error);
-        setIsSoundPlaying(false); // Ensure state is correct on failure
+        // User might need to interact with the page first
+        setIsSoundPlaying(false);
       });
+
+      return () => {
+        audio.pause();
+      };
     }
   }, [alarmSoundUrl]);
+
 
   const stopSound = () => {
     if (audioRef.current) {
@@ -201,6 +192,8 @@ export function MorningBriefing({
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
+
+      <AlarmSound ref={audioRef} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className={cn(animationDelays[0])}>
