@@ -21,6 +21,8 @@ import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Skeleton } from './ui/skeleton';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -29,6 +31,13 @@ interface MorningBriefingProps {
   alarmSoundUrl: string;
   onReset: () => void;
 }
+
+const animationDelays = [
+    "animate-fade-in-up",
+    "animate-fade-in-up-delay-1",
+    "animate-fade-in-up-delay-2",
+    "animate-fade-in-up-delay-3",
+]
 
 const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   <InfoCard title={data.location} icon={MapPin}>
@@ -101,7 +110,7 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
 };
 
 const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
-  <Card className="md:col-span-2 card-glass">
+  <Card className="md:col-span-2 card-glass group">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">Top Headlines</CardTitle>
       <Newspaper className="h-5 w-5 text-muted-foreground" />
@@ -120,7 +129,7 @@ const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
 );
 
 const QuoteCard = ({ data }: { data: MotivationalQuote }) => (
-    <Card className="lg:col-span-3 card-glass">
+    <Card className="lg:col-span-3 card-glass group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Food for Thought</CardTitle>
         <Quote className="h-5 w-5 text-muted-foreground" />
@@ -171,19 +180,27 @@ export function MorningBriefing({
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       <AlarmSound ref={audioRef} soundUrl={alarmSoundUrl} />
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <WeatherCard data={briefingData.weather} />
-        <TrafficCard data={briefingData.traffic} alarmTime={alarmTime}/>
-        <NewsCard data={briefingData.news} />
-        <QuoteCard data={quote} />
+        <div className={cn(animationDelays[0])}>
+            <WeatherCard data={briefingData.weather} />
+        </div>
+        <div className={cn(animationDelays[1])}>
+            <TrafficCard data={briefingData.traffic} alarmTime={alarmTime}/>
+        </div>
+        <div className={cn("md:col-span-2", animationDelays[2])}>
+            <NewsCard data={briefingData.news} />
+        </div>
+        <div className={cn("lg:col-span-3", animationDelays[3])}>
+            <QuoteCard data={quote} />
+        </div>
       </div>
       
-      <div className="text-center flex items-center justify-center gap-4">
+      <div className="text-center flex items-center justify-center gap-4 animate-fade-in-up-delay-4">
         {isAlarmPlaying && (
           <Button variant="destructive" onClick={handleStopAlarm}>
             <VolumeX className="h-6 w-6"/>
@@ -196,4 +213,69 @@ export function MorningBriefing({
       </div>
     </div>
   );
+}
+
+export function MorningBriefingSkeleton() {
+    return (
+        <div className="w-full max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <div className="text-center space-y-2">
+                <Skeleton className="h-10 w-3/4 mx-auto" />
+                <Skeleton className="h-6 w-1/2 mx-auto" />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {/* Weather Card Skeleton */}
+                <Card className="card-glass">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-1/3" />
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-12 w-2/3" />
+                        <Skeleton className="h-5 w-full mt-2" />
+                    </CardContent>
+                </Card>
+
+                {/* Traffic Card Skeleton */}
+                <Card className="card-glass">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-1/2" />
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-8 w-1/4" />
+                        <Skeleton className="h-5 w-full mt-2" />
+                        <Skeleton className="h-4 w-1/3 mt-1" />
+                    </CardContent>
+                </Card>
+
+                {/* News Card Skeleton */}
+                <Card className="md:col-span-2 card-glass">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-1/4" />
+                        <Newspaper className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent className="space-y-3 pt-2">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-5/6" />
+                        <Skeleton className="h-5 w-full" />
+                    </CardContent>
+                </Card>
+
+                {/* Quote Card Skeleton */}
+                <Card className="lg:col-span-3 card-glass">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-1/5" />
+                        <Quote className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-4 w-1/4 ml-auto mt-2" />
+                    </CardContent>
+                </Card>
+            </div>
+             <div className="text-center flex items-center justify-center gap-4">
+                <Skeleton className="h-10 w-32" />
+            </div>
+        </div>
+    );
 }

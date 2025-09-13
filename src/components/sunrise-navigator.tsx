@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { addMinutes, format, parse } from 'date-fns';
 import { AlarmSetup } from '@/components/alarm-setup';
-import { MorningBriefing } from '@/components/morning-briefing';
+import { MorningBriefing, MorningBriefingSkeleton } from '@/components/morning-briefing';
 import { getBriefingData, getMotivationalQuote, getTrafficInfo } from '@/lib/actions';
 import type { AlarmSettings, BriefingData, MotivationalQuote, TrafficData } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -50,16 +50,21 @@ function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: strin
 
 export default function SunriseNavigator() {
   const [view, setView] = useState<'welcome' | 'app'>('welcome');
+  const [appView, setAppView] = useState<'setup' | 'checkingTraffic' | 'briefing' | 'loadingBriefing'>('setup');
   const [alarmSettings, setAlarmSettings] = useState<AlarmSettings | null>(null);
   const [isAlarmSet, setIsAlarmSet] = useState(false);
-  const [isCheckingTraffic, setIsCheckingTraffic] = useState(false);
-  const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [briefingData, setBriefingData] = useState<BriefingData | null>(null);
   const [adjustedAlarmTime, setAdjustedAlarmTime] = useState<string | null>(null);
   const [quote, setQuote] = useState<MotivationalQuote | null>(null);
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { toast } = useToast();
   const backgroundImage = placeholderImages.placeholderImages[1];
 
@@ -84,7 +89,7 @@ export default function SunriseNavigator() {
   const handleSimulateAlarm = async () => {
     if (!alarmSettings) return;
     setIsSimulating(true);
-    setIsCheckingTraffic(true);
+    setAppView('checkingTraffic');
     setTrafficData(null);
 
     try {
@@ -103,7 +108,7 @@ export default function SunriseNavigator() {
 
       // Wait a moment on the traffic screen
       await new Promise(resolve => setTimeout(resolve, 4000));
-      setIsCheckingTraffic(false);
+      setAppView('loadingBriefing');
       
       // 3. Fetch the rest of the data
       const [briefing, motd] = await Promise.all([
@@ -114,7 +119,7 @@ export default function SunriseNavigator() {
       setBriefingData(briefing);
       setQuote(motd);
       
-      setIsAlarmRinging(true);
+      setAppView('briefing');
     } catch (error) {
       console.error(error);
       toast({
@@ -122,20 +127,19 @@ export default function SunriseNavigator() {
         title: 'Error',
         description: 'Could not fetch morning briefing data. Please try again.',
       });
-      setIsCheckingTraffic(false);
+      setAppView('setup');
     } finally {
       setIsSimulating(false);
     }
   };
 
   const handleReset = () => {
-    setIsAlarmRinging(false);
+    setAppView('setup');
     setIsAlarmSet(false);
     setBriefingData(null);
     setQuote(null);
     setAlarmSettings(null);
     setAdjustedAlarmTime(null);
-    setIsCheckingTraffic(false);
     setTrafficData(null);
     setView('welcome');
   };
@@ -143,51 +147,67 @@ export default function SunriseNavigator() {
   const alarmDisplayTime = adjustedAlarmTime || alarmSettings?.time || '';
 
   const renderContent = () => {
+     if (!isMounted) {
+      return null;
+    }
+    
     if (view === 'welcome') {
       return (
-        <Card className="w-full max-w-md text-center card-glass">
-            <CardHeader className="items-center">
-                <Sunrise className="h-12 w-12 text-primary" />
-                <CardTitle className="text-3xl font-bold">Welcome to Sunrise Navigator</CardTitle>
-                <CardDescription>Your smart morning assistant.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">Get personalized briefings with live traffic, weather, news, and a dose of motivation to start your day right.</p>
-            </CardContent>
-            <CardFooter className="flex justify-center">
-                <Button onClick={() => setView('app')} className="btn-gradient">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            </CardFooter>
-        </Card>
+        <div key="welcome" className="animate-fade-in">
+            <Card className="w-full max-w-md text-center card-glass">
+                <CardHeader className="items-center">
+                    <Sunrise className="h-12 w-12 text-primary" />
+                    <CardTitle className="text-3xl font-bold">Welcome to Sunrise Navigator</CardTitle>
+                    <CardDescription>Your smart morning assistant.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">Get personalized briefings with live traffic, weather, news, and a dose of motivation to start your day right.</p>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <Button onClick={() => setView('app')} className="btn-gradient">
+                        Get Started
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
       );
     }
 
-    if (isAlarmRinging) {
-      return briefingData && quote && alarmSettings ? (
-        <MorningBriefing
-          briefingData={briefingData}
-          quote={quote}
-          alarmTime={alarmDisplayTime}
-          alarmSoundUrl={alarmSettings.alarmSound}
-          onReset={handleReset}
-        />
-      ) : null;
+    if (view === 'app') {
+        switch(appView) {
+            case 'briefing':
+                return briefingData && quote && alarmSettings ? (
+                    <div key="briefing" className="animate-fade-in w-full">
+                        <MorningBriefing
+                        briefingData={briefingData}
+                        quote={quote}
+                        alarmTime={alarmDisplayTime}
+                        alarmSoundUrl={alarmSettings.alarmSound}
+                        onReset={handleReset}
+                        />
+                    </div>
+                ) : null;
+            case 'loadingBriefing':
+                return <div key="loading" className="w-full"><MorningBriefingSkeleton /></div>;
+            case 'checkingTraffic':
+                return alarmSettings ? <div key="traffic" className="animate-fade-in"><TrafficCheckScreen originalTime={alarmSettings.time} trafficData={trafficData}/></div> : null;
+            case 'setup':
+            default:
+                return (
+                    <div key="setup" className="animate-fade-in w-full max-w-2xl">
+                        <AlarmSetup
+                            onSetAlarm={handleSetAlarm}
+                            onCancelAlarm={handleCancelAlarm}
+                            onSimulateAlarm={handleSimulateAlarm}
+                            isAlarmSet={isAlarmSet}
+                            alarmTime={alarmSettings?.time ?? null}
+                            isSimulating={isSimulating}
+                        />
+                    </div>
+                )
+        }
     }
-    if (isCheckingTraffic && alarmSettings) {
-        return <TrafficCheckScreen originalTime={alarmSettings.time} trafficData={trafficData}/>
-    }
-    return (
-      <AlarmSetup
-        onSetAlarm={handleSetAlarm}
-        onCancelAlarm={handleCancelAlarm}
-        onSimulateAlarm={handleSimulateAlarm}
-        isAlarmSet={isAlarmSet}
-        alarmTime={alarmSettings?.time ?? null}
-        isSimulating={isSimulating}
-      />
-    );
   }
 
   return (
@@ -202,12 +222,7 @@ export default function SunriseNavigator() {
           className="object-cover -z-10 rounded-2xl"
           data-ai-hint={backgroundImage.imageHint}
         />
-      <div
-        className={cn(
-          'flex justify-center items-center w-full transition-opacity duration-500',
-           (isAlarmRinging || isCheckingTraffic) ? 'opacity-100' : 'opacity-100',
-        )}
-      >
+      <div className="flex justify-center items-center w-full">
         {renderContent()}
       </div>
     </div>
