@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.tomtom.com; connect-src 'self' *.tomtom.com; style-src 'self' 'unsafe-inline' *.tomtom.com; img-src 'self' data: *.tomtom.com; worker-src 'self' blob:; child-src 'self' blob:;",
+            value: "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.tomtom.com; connect-src 'self' *.tomtom.com; style-src 'self' 'unsafe-inline' *.tomtom.com; img-src 'self' data: *.tomtom.com images.unsplash.com; worker-src 'self' blob:; child-src 'self' blob:;",
           },
         ],
       },
