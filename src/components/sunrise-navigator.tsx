@@ -66,7 +66,7 @@ export default function SunriseNavigator() {
   }, []);
 
   const { toast } = useToast();
-  const backgroundImage = placeholderImages.placeholderImages[1];
+  const backgroundImage = placeholderImages.placeholderImages[0];
 
   const handleSetAlarm = (settings: AlarmSettings) => {
     setAlarmSettings(settings);
