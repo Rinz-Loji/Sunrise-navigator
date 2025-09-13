@@ -81,17 +81,17 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
                 </div>
             )}
         </div>
-        {data.delay > 0 && <div className="text-sm font-semibold text-accent mt-1">+{data.delay} min delay</div>}
+        {data.delay > 0 && <div className="text-sm font-semibold text-orange-400 mt-1">+{data.delay} min delay</div>}
       <p className="text-xs text-muted-foreground mt-1">
         To {data.destination}
       </p>
       {hasSuggestion && (
-         <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/20">
+         <div className="mt-4 p-3 bg-white/5 rounded-lg border border-orange-400/20">
             <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-accent mt-0.5"/>
+                <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5"/>
                 <div>
-                    <p className="text-xs text-accent-foreground/80">{data.suggestion}</p>
-                    <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1 text-accent" onClick={handleAdjust}>Adjust & Notify</Button>
+                    <p className="text-xs text-orange-300/80">{data.suggestion}</p>
+                    <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1 text-orange-400" onClick={handleAdjust}>Adjust & Notify</Button>
                 </div>
             </div>
          </div>
@@ -101,7 +101,7 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
 };
 
 const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
-  <Card className="md:col-span-2 bg-card/80 backdrop-blur-sm">
+  <Card className="md:col-span-2 card-glass">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">Top Headlines</CardTitle>
       <Newspaper className="h-4 w-4 text-muted-foreground" />
@@ -120,7 +120,7 @@ const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
 );
 
 const QuoteCard = ({ data }: { data: MotivationalQuote }) => (
-    <Card className="lg:col-span-3 bg-card/80 backdrop-blur-sm">
+    <Card className="lg:col-span-3 card-glass">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Food for Thought</CardTitle>
         <Quote className="h-4 w-4 text-muted-foreground" />

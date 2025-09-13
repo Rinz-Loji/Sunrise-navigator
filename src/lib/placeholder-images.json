@@ -5,6 +5,12 @@
       "description": "A beautiful sunrise over mountains, to be used as a background for the morning briefing screen.",
       "imageUrl": "https://picsum.photos/seed/sunrisebg/1280/800",
       "imageHint": "sunrise mountains"
+    },
+    {
+      "id": "space-grid-bg",
+      "description": "A dark, futuristic background with a subtle grid and starfield.",
+      "imageUrl": "https://picsum.photos/seed/spacegrid/1280/800",
+      "imageHint": "space grid"
     }
   ]
 }

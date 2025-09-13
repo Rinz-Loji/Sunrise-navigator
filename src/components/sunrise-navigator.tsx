@@ -21,7 +21,7 @@ function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: strin
     : originalTime;
 
   return (
-    <Card className="w-full max-w-md shadow-lg text-center backdrop-blur-sm bg-card/80">
+    <Card className="w-full max-w-md text-center card-glass">
       <CardHeader>
         <div className="flex justify-center">
             {trafficData ? <TrafficCone className="h-12 w-12 text-primary" /> : <Loader2 className="h-12 w-12 text-primary animate-spin" />}
@@ -61,7 +61,7 @@ export default function SunriseNavigator() {
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   
   const { toast } = useToast();
-  const backgroundImage = placeholderImages.placeholderImages[0];
+  const backgroundImage = placeholderImages.placeholderImages[1];
 
   const handleSetAlarm = (settings: AlarmSettings) => {
     setAlarmSettings(settings);
@@ -145,17 +145,17 @@ export default function SunriseNavigator() {
   const renderContent = () => {
     if (view === 'welcome') {
       return (
-        <Card className="w-full max-w-md shadow-lg text-center backdrop-blur-sm bg-card/80">
+        <Card className="w-full max-w-md text-center card-glass">
             <CardHeader className="items-center">
                 <Sunrise className="h-12 w-12 text-primary" />
-                <CardTitle className="text-2xl font-bold">Welcome to Sunrise Navigator</CardTitle>
+                <CardTitle className="text-3xl font-bold">Welcome to Sunrise Navigator</CardTitle>
                 <CardDescription>Your smart morning assistant.</CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground">Get personalized briefings with live traffic, weather, news, and a dose of motivation to start your day right.</p>
             </CardContent>
             <CardFooter className="flex justify-center">
-                <Button onClick={() => setView('app')}>
+                <Button onClick={() => setView('app')} className="btn-gradient">
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -199,7 +199,7 @@ export default function SunriseNavigator() {
           src={backgroundImage.imageUrl}
           alt={backgroundImage.description}
           fill
-          className="object-cover -z-10 rounded-2xl opacity-20 dark:opacity-10"
+          className="object-cover -z-10 rounded-2xl"
           data-ai-hint={backgroundImage.imageHint}
         />
       <div

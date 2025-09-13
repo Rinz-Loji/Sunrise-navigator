@@ -99,7 +99,7 @@ export function AlarmSetup({
 
   if (isAlarmSet) {
     return (
-      <Card className="w-full max-w-md shadow-lg backdrop-blur-sm bg-card/80">
+      <Card className="w-full max-w-md card-glass">
         <CardHeader className="items-center text-center">
           <AlarmClock className="h-12 w-12 text-primary" />
           <CardTitle className="text-2xl font-bold">Alarm is Set</CardTitle>
@@ -115,7 +115,7 @@ export function AlarmSetup({
         <CardFooter className="flex flex-col gap-4">
           <Button
             onClick={onSimulateAlarm}
-            className="w-full"
+            className="w-full btn-gradient"
             disabled={isSimulating}
           >
             {isSimulating ? (
@@ -144,7 +144,7 @@ export function AlarmSetup({
   }
 
   return (
-    <Card className="w-full max-w-2xl shadow-lg backdrop-blur-sm bg-card/80">
+    <Card className="w-full max-w-2xl card-glass">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold">
           <AlarmClock className="h-6 w-6" />
@@ -262,7 +262,7 @@ export function AlarmSetup({
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full btn-gradient">
               Set Alarm
             </Button>
           </CardFooter>
