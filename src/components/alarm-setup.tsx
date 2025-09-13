@@ -333,16 +333,21 @@ export function AlarmSetup({
                         )}
                         {soundSelectionMode === 'search' && (
                           <div className="space-y-4 pt-2">
-                             <form onSubmit={handleMusicSearch} className="flex gap-2">
+                             <div className="flex gap-2">
                                 <Input 
                                   placeholder="Search for a song..."
                                   value={musicSearchQuery}
                                   onChange={(e) => setMusicSearchQuery(e.target.value)}
+                                  onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                          handleMusicSearch(e);
+                                      }
+                                  }}
                                 />
-                                <Button type="submit" variant="secondary" disabled={isSearchingMusic}>
+                                <Button type="button" onClick={handleMusicSearch} variant="secondary" disabled={isSearchingMusic}>
                                   {isSearchingMusic ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
                                 </Button>
-                              </form>
+                              </div>
 
                             {isSearchingMusic && <div className="text-center p-4">Searching...</div>}
                             
