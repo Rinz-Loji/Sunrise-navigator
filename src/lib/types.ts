@@ -22,12 +22,6 @@ export type MotivationalQuote = {
   author: string;
 };
 
-export type MusicTrack = {
-  name: string;
-  artist: string;
-  url: string;
-};
-
 export type BriefingData = {
   weather: WeatherData;
   traffic: TrafficData;
