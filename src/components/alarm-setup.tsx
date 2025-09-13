@@ -20,11 +20,13 @@ import {
   BellRing,
   Music,
   MapPin,
+  PlayCircle,
+  PauseCircle,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { validateAddress as validateAddressAction } from '@/lib/actions';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -42,6 +44,11 @@ const defaultSounds = [
   { name: 'Bugle Call', url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' },
   { name: 'Pleasant Bell', url: 'https://actions.google.com/sounds/v1/alarms/medium_bell_ringing_near.ogg' },
   { name: 'Gentle Wake-up', url: 'https://actions.google.com/sounds/v1/alarms/gentle_soft_ring.ogg' },
+  { name: 'Winding Alarm', url: 'https://actions.google.com/sounds/v1/alarms/winding_alarm_clock.ogg' },
+  { name: 'Phone Ring', url: 'https://actions.google.com/sounds/v1/alarms/phone_alerts_and_rings.ogg' },
+  { name: 'Bird & Water Ambience', url: 'https://actions.google.com/sounds/v1/nature/ambient_water_and_birds.ogg' },
+  { name: 'Forest Sounds', url: 'https://actions.google.com/sounds/v1/nature/forest_with_light_wind_and_birds.ogg' },
+  { name: 'Light Rain', url: 'https://actions.google.com/sounds/v1/nature/light_rain_and_thunder.ogg' },
 ];
 
 const alarmSchema = z.object({
@@ -76,6 +83,8 @@ export function AlarmSetup({
 
   const [isvalidatingHome, setIsValidatingHome] = useState(false);
   const [isValidatingDestination, setIsValidatingDestination] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const audioPreviewRef = useRef<HTMLAudioElement>(null);
 
   const handleAddressValidation = async (
     field: 'home' | 'destination',
@@ -98,6 +107,21 @@ export function AlarmSetup({
 
     if (field === 'home') setIsValidatingHome(false);
     if (field === 'destination') setIsValidatingDestination(false);
+  };
+
+  const handlePreview = () => {
+    if (audioPreviewRef.current) {
+        if (isPreviewing) {
+            audioPreviewRef.current.pause();
+            audioPreviewRef.current.currentTime = 0;
+            setIsPreviewing(false);
+        } else {
+            const selectedSoundUrl = form.getValues('alarmSound');
+            audioPreviewRef.current.src = selectedSoundUrl;
+            audioPreviewRef.current.play();
+            setIsPreviewing(true);
+        }
+    }
   };
 
   if (isAlarmSet) {
@@ -253,27 +277,34 @@ export function AlarmSetup({
                             <Music className="h-6 w-6" />
                             Alarm Sound
                         </FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            const soundName = defaultSounds.find(s => s.url === value)?.name
-                            form.setValue('alarmSoundName', soundName)
-                          }} 
-                          defaultValue={field.value}
-                        >
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select an alarm sound" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {defaultSounds.map(sound => (
-                                <SelectItem key={sound.url} value={sound.url}>
-                                {sound.name}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="flex items-center gap-2">
+                            <Select 
+                            onValueChange={(value) => {
+                                field.onChange(value)
+                                const soundName = defaultSounds.find(s => s.url === value)?.name
+                                form.setValue('alarmSoundName', soundName)
+                                if (isPreviewing) handlePreview();
+                            }} 
+                            defaultValue={field.value}
+                            >
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select an alarm sound" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {defaultSounds.map(sound => (
+                                    <SelectItem key={sound.url} value={sound.url}>
+                                    {sound.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            <Button type="button" variant="outline" size="icon" onClick={handlePreview}>
+                                {isPreviewing ? <PauseCircle /> : <PlayCircle />}
+                            </Button>
+                            <audio ref={audioPreviewRef} onEnded={() => setIsPreviewing(false)} />
+                        </div>
                         <FormMessage />
                     </FormItem>
                 )}
