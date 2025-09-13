@@ -79,7 +79,6 @@ export function AlarmSetup({
   const [musicSearchQuery, setMusicSearchQuery] = useState('');
   const [isSearchingMusic, setIsSearchingMusic] = useState(false);
   const [musicSearchResults, setMusicSearchResults] = useState<MusicTrack[]>([]);
-  const [noResultsFound, setNoResultsFound] = useState(false);
 
   const handleAddressValidation = async (
     field: 'home' | 'destination',
@@ -108,16 +107,10 @@ export function AlarmSetup({
     if (!musicSearchQuery) return;
     setIsSearchingMusic(true);
     setMusicSearchResults([]);
-    setNoResultsFound(false);
 
     const results = await searchMusicAction({ query: musicSearchQuery });
     
-    if (results.length === 0) {
-        setNoResultsFound(true);
-    } else {
-        setMusicSearchResults(results);
-        setNoResultsFound(false);
-    }
+    setMusicSearchResults(results);
 
     setIsSearchingMusic(false);
   }
@@ -125,7 +118,6 @@ export function AlarmSetup({
   const handleSoundTypeChange = (value: 'default' | 'search') => {
     setSoundSelectionType(value);
     setMusicSearchResults([]);
-    setNoResultsFound(false);
     if (value === 'default') {
         form.setValue('alarmSound', defaultSounds[0].url);
     } else {
@@ -340,8 +332,17 @@ export function AlarmSetup({
                         </Button>
                     </div>
 
-                    {isSearchingMusic && <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="animate-spin h-4 w-4"/>Searching...</div>}
-                    {noResultsFound && <div className="text-sm text-muted-foreground">This track is not present in the database.</div>}
+                    {isSearchingMusic && (
+                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Loader2 className="animate-spin h-4 w-4"/>Searching...
+                        </div>
+                    )}
+
+                    {!isSearchingMusic && musicSearchResults.length === 0 && musicSearchQuery && (
+                        <div className="text-sm text-muted-foreground">
+                            This track is not present in the database.
+                        </div>
+                    )}
 
                     {musicSearchResults.length > 0 && (
                         <div className="space-y-4">
