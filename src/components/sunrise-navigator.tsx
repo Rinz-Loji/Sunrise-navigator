@@ -154,14 +154,14 @@ export default function SunriseNavigator() {
     if (view === 'welcome') {
       return (
         <div key="welcome" className="animate-fade-in">
-            <Card className="w-full max-w-md text-center card-glass">
+            <Card className="w-full max-w-lg text-center card-glass">
                 <CardHeader className="items-center">
-                    <Sunrise className="h-12 w-12 text-primary" />
-                    <CardTitle className="text-3xl font-bold">Welcome to Sunrise Navigator</CardTitle>
-                    <CardDescription>Your smart morning assistant.</CardDescription>
+                    <Sunrise className="h-16 w-16 text-primary" />
+                    <CardTitle className="text-3xl font-bold">Sunrise Navigator</CardTitle>
+                    <CardDescription>No ordinary alarms anymore!</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">Get personalized briefings with live traffic, weather, news, and a dose of motivation to start your day right.</p>
+                    <p className="text-muted-foreground">Everything you need in a smart alarm, from live weather and traffic updates to your daily dose of motivation.</p>
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <Button onClick={() => setView('app')} className="btn-gradient">
