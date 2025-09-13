@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { BriefingData, MotivationalQuote } from '@/lib/types';
 import {
   Cloudy,
@@ -14,10 +14,11 @@ import {
   VolumeX,
   AlertTriangle,
   LogIn,
+  PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -27,8 +28,7 @@ interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
-  isSoundPlaying: boolean;
-  stopSound: () => void;
+  alarmSoundUrl: string;
   onReset: () => void;
 }
 
@@ -147,23 +147,49 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
-  isSoundPlaying,
-  stopSound,
+  alarmSoundUrl,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+
+  useEffect(() => {
+    audioRef.current = new Audio(alarmSoundUrl);
+    audioRef.current.loop = true;
+
+    const playSound = async () => {
+      try {
+        await audioRef.current?.play();
+        setIsSoundPlaying(true);
+      } catch (error) {
+        console.error("Audio play failed:", error);
+        // Autoplay was blocked, user will have to click play.
+        setIsSoundPlaying(false);
+      }
+    };
+    
+    playSound();
+
+    // Cleanup
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, [alarmSoundUrl]);
+
+  const stopSound = () => {
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsSoundPlaying(false);
+    }
+  };
 
   const handleReset = () => {
     stopSound();
     onReset();
   }
-
-  // Ensure sound stops if component unmounts unexpectedly
-  useEffect(() => {
-    return () => {
-      stopSound();
-    };
-  }, [stopSound]);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -266,5 +292,3 @@ export function MorningBriefingSkeleton() {
         </div>
     );
 }
-
-    
