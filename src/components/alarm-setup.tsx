@@ -147,7 +147,7 @@ export function AlarmSetup({
     <Card className="w-full max-w-2xl card-glass">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-          <AlarmClock className="h-6 w-6" />
+          <AlarmClock className="h-8 w-8" />
           Set Your Smart Alarm
         </CardTitle>
         <CardDescription>
@@ -164,7 +164,7 @@ export function AlarmSetup({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-3">
-                        <AlarmClock className="h-5 w-5" />
+                        <AlarmClock className="h-6 w-6" />
                         Wake-up Time
                       </FormLabel>
                       <FormControl>
@@ -180,7 +180,7 @@ export function AlarmSetup({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5" />
+                        <MapPin className="h-6 w-6" />
                         Weather Location
                       </FormLabel>
                       <FormControl>
@@ -198,7 +198,7 @@ export function AlarmSetup({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5" />
+                    <MapPin className="h-6 w-6" />
                     Home Address
                     {isvalidatingHome && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
@@ -219,7 +219,7 @@ export function AlarmSetup({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5" />
+                    <MapPin className="h-6 w-6" />
                     Work/School Address
                      {isValidatingDestination && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
@@ -240,12 +240,12 @@ export function AlarmSetup({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-3">
-                        <Music className="h-5 w-5" />
+                        <Music className="h-6 w-6" />
                         Alarm Sound
                       </FormLabel>
                        <Select onValuechange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12">
+                          <SelectTrigger>
                             <SelectValue placeholder="Select an alarm sound" />
                           </SelectTrigger>
                         </FormControl>

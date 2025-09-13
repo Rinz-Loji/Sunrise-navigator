@@ -34,14 +34,14 @@ const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   <InfoCard title={data.location} icon={MapPin}>
     <div className="flex items-center gap-4">
         <div className="text-4xl font-bold">{data.temperature}°C</div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Cloudy className="h-4 w-4" />
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Cloudy className="h-5 w-5" />
             <span>{data.condition}</span>
         </div>
     </div>
-    <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+    <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
       <div className="flex items-center gap-1">
-        <Wind className="h-4 w-4" />
+        <Wind className="h-5 w-5" />
         <span>12 km/h</span>
       </div>
     </div>
@@ -70,13 +70,13 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
             <span className="text-xs">mins</span>
         </div>
         <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
                 <span>Est. Time</span>
             </div>
             {arrivalTime && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <LogIn className="h-3 w-3" />
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <LogIn className="h-4 w-4" />
                     <span>Arrival: {arrivalTime}</span>
                 </div>
             )}
@@ -88,7 +88,7 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
       {hasSuggestion && (
          <div className="mt-4 p-3 bg-white/5 rounded-lg border border-orange-400/20">
             <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5"/>
+                <AlertTriangle className="h-5 w-5 text-orange-400 mt-0.5"/>
                 <div>
                     <p className="text-xs text-orange-300/80">{data.suggestion}</p>
                     <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1 text-orange-400" onClick={handleAdjust}>Adjust & Notify</Button>
@@ -104,7 +104,7 @@ const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
   <Card className="md:col-span-2 card-glass">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">Top Headlines</CardTitle>
-      <Newspaper className="h-4 w-4 text-muted-foreground" />
+      <Newspaper className="h-5 w-5 text-muted-foreground" />
     </CardHeader>
     <CardContent>
       <ul className="space-y-3 pt-2">
@@ -123,7 +123,7 @@ const QuoteCard = ({ data }: { data: MotivationalQuote }) => (
     <Card className="lg:col-span-3 card-glass">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Food for Thought</CardTitle>
-        <Quote className="h-4 w-4 text-muted-foreground" />
+        <Quote className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <blockquote className="border-l-2 border-primary pl-4 italic text-foreground/80">
@@ -186,7 +186,7 @@ export function MorningBriefing({
       <div className="text-center flex items-center justify-center gap-4">
         {isAlarmPlaying && (
           <Button variant="destructive" onClick={handleStopAlarm}>
-            <VolumeX />
+            <VolumeX className="h-6 w-6"/>
             Stop Alarm
           </Button>
         )}
