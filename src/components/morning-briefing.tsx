@@ -8,7 +8,6 @@ import {
   Wind,
   Car,
   Clock,
-  CalendarDays,
   Newspaper,
   Quote,
   MapPin,
@@ -89,14 +88,6 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
   );
 };
 
-
-const CalendarCard = ({ data }: { data: BriefingData['calendar'] }) => (
-  <InfoCard title="First Event" icon={CalendarDays}>
-    <div className="text-2xl font-bold">{data.time}</div>
-    <p className="text-xs text-muted-foreground truncate">{data.title}</p>
-  </InfoCard>
-);
-
 const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
   <Card className="md:col-span-2 bg-card/80 backdrop-blur-sm">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -117,7 +108,7 @@ const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
 );
 
 const QuoteCard = ({ data }: { data: MotivationalQuote }) => (
-    <Card className="md:col-span-2 bg-card/80 backdrop-blur-sm">
+    <Card className="lg:col-span-3 bg-card/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Food for Thought</CardTitle>
         <Quote className="h-4 w-4 text-muted-foreground" />
@@ -174,7 +165,6 @@ export function MorningBriefing({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <WeatherCard data={briefingData.weather} />
         <TrafficCard data={briefingData.traffic} />
-        <CalendarCard data={briefingData.calendar} />
         <NewsCard data={briefingData.news} />
         <QuoteCard data={quote} />
       </div>

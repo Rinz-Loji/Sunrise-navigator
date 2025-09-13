@@ -59,14 +59,9 @@ export async function getBriefingData(
     getNewsHeadlines(),
   ]);
 
-  // In a real app, you would fetch from Google Calendar API
   const mockData: BriefingData = {
     weather: weatherData,
     traffic: trafficData,
-    calendar: {
-      title: 'Q2 Planning Session',
-      time: '9:00 AM',
-    },
     news: newsData,
   };
 

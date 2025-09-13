@@ -11,11 +11,6 @@ export type TrafficData = {
   suggestion?: string;
 };
 
-export type CalendarEvent = {
-  title: string;
-  time: string;
-};
-
 export type NewsHeadline = {
   id: string;
   title: string;
@@ -30,7 +25,6 @@ export type MotivationalQuote = {
 export type BriefingData = {
   weather: WeatherData;
   traffic: TrafficData;
-  calendar: CalendarEvent;
   news: NewsHeadline[];
 };
 
