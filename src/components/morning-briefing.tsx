@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, RefObject } from 'react';
 import type { BriefingData, MotivationalQuote } from '@/lib/types';
 import {
   Cloudy,
@@ -17,8 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { AlarmSound } from './alarm-sound';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -28,7 +27,7 @@ interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
-  alarmSoundUrl: string;
+  audioRef: RefObject<HTMLAudioElement>;
   onReset: () => void;
 }
 
@@ -147,29 +146,18 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
-  alarmSoundUrl,
+  audioRef,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isAlarmPlaying, setIsAlarmPlaying] = useState(true);
+  const [isAlarmPlaying, setIsAlarmPlaying] = useState(!audioRef.current?.paused);
 
-  useEffect(() => {
-    if (audioRef.current && alarmSoundUrl) {
-      audioRef.current.play().catch(error => {
-        console.error("Audio play failed:", error);
-        // If autoplay fails, show the button to let the user start it manually.
-        setIsAlarmPlaying(false);
-      });
-    }
-  }, [alarmSoundUrl]);
-  
   const handleStopAlarm = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      setIsAlarmPlaying(false);
     }
-    setIsAlarmPlaying(false);
   };
   
   const handleReset = () => {
@@ -177,9 +165,28 @@ export function MorningBriefing({
     onReset();
   }
 
+  // Effect to sync playing state with audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const onPlay = () => setIsAlarmPlaying(true);
+      const onPause = () => setIsAlarmPlaying(false);
+      
+      audio.addEventListener('play', onPlay);
+      audio.addEventListener('pause', onPause);
+      
+      // Initial sync
+      setIsAlarmPlaying(!audio.paused);
+
+      return () => {
+        audio.removeEventListener('play', onPlay);
+        audio.removeEventListener('pause', onPause);
+      };
+    }
+  }, [audioRef]);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <AlarmSound ref={audioRef} soundUrl={alarmSoundUrl} />
       <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>

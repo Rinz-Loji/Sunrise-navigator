@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { addMinutes, format, parse } from 'date-fns';
 import { AlarmSetup } from '@/components/alarm-setup';
@@ -14,6 +14,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Loader2, ArrowRight, TrafficCone, Sunrise } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
+import { AlarmSound } from './alarm-sound';
 
 function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: string, trafficData: TrafficData | null }) {
   const newTime = trafficData && trafficData.delay > 0
@@ -60,6 +61,7 @@ export default function SunriseNavigator() {
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   
   const [isMounted, setIsMounted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -88,6 +90,21 @@ export default function SunriseNavigator() {
 
   const handleSimulateAlarm = async () => {
     if (!alarmSettings) return;
+
+    // --- Start Audio Playback Immediately on Click ---
+    if (audioRef.current) {
+        audioRef.current.src = alarmSettings.alarmSound;
+        audioRef.current.play().catch(error => {
+            console.error("Audio play failed:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Audio Error',
+                description: 'Could not play alarm sound. Please check browser permissions.'
+            });
+        });
+    }
+    // ------------------------------------------------
+
     setIsSimulating(true);
     setAppView('checkingTraffic');
     setTrafficData(null);
@@ -127,6 +144,9 @@ export default function SunriseNavigator() {
         title: 'Error',
         description: 'Could not fetch morning briefing data. Please try again.',
       });
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       setAppView('setup');
     } finally {
       setIsSimulating(false);
@@ -134,6 +154,10 @@ export default function SunriseNavigator() {
   };
 
   const handleReset = () => {
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+    }
     setAppView('setup');
     setIsAlarmSet(false);
     setBriefingData(null);
@@ -186,7 +210,7 @@ export default function SunriseNavigator() {
                         briefingData={briefingData}
                         quote={quote}
                         alarmTime={alarmDisplayTime}
-                        alarmSoundUrl={alarmSettings.alarmSound}
+                        audioRef={audioRef}
                         onReset={handleReset}
                         />
                     </div>
@@ -233,6 +257,7 @@ export default function SunriseNavigator() {
       <div className="flex justify-center items-center w-full">
         {renderContent()}
       </div>
+      <AlarmSound ref={audioRef} />
     </div>
   );
 }

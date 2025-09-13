@@ -2,13 +2,10 @@
 
 import { forwardRef } from 'react';
 
-interface AlarmSoundProps {
-  soundUrl: string;
-}
-
-export const AlarmSound = forwardRef<HTMLAudioElement, AlarmSoundProps>(({ soundUrl }, ref) => {
+// This component is now just a wrapper for an audio element
+export const AlarmSound = forwardRef<HTMLAudioElement, {}>((props, ref) => {
   return (
-    <audio ref={ref} loop src={soundUrl}>
+    <audio ref={ref} loop>
       Your browser does not support the audio element.
     </audio>
   );
