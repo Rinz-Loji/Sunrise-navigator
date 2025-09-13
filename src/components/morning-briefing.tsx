@@ -57,13 +57,9 @@ const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   </InfoCard>
 );
 
-const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarmTime: string | null }) => {
+const TrafficCard = ({ data }: { data: BriefingData['traffic']}) => {
   const { toast } = useToast();
   const hasSuggestion = data.suggestion && data.delay > 0;
-
-  const arrivalTime = alarmTime 
-    ? format(addMinutes(parse(alarmTime, 'HH:mm', new Date()), data.commuteTime), 'HH:mm')
-    : null;
 
   const handleAdjust = () => {
     toast({
@@ -78,18 +74,7 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
             <div className="text-2xl font-bold">{data.commuteTime}</div>
             <span className="text-xs">mins</span>
         </div>
-        <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Est. Time</span>
-            </div>
-            {arrivalTime && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <LogIn className="h-4 w-4" />
-                    <span>Arrival: {arrivalTime}</span>
-                </div>
-            )}
-        </div>
+       
         {data.delay > 0 && <div className="text-sm font-semibold text-orange-400 mt-1">+{data.delay} min delay</div>}
       <p className="text-xs text-muted-foreground mt-1">
         To {data.destination}
@@ -151,13 +136,39 @@ export function MorningBriefing({
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isSoundPlaying, setIsSoundPlaying] = useState(true);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      // Set playing state on successful play
+      const handlePlay = () => setIsSoundPlaying(true);
+      audio.addEventListener('play', handlePlay);
+
+      // Set playing state to false when paused
+      const handlePause = () => setIsSoundPlaying(false);
+      audio.addEventListener('pause', handlePause);
+      
+      // Attempt to play
+      audio.play().catch(error => {
+        // Autoplay was prevented.
+        console.error("Audio play failed:", error);
+        setIsSoundPlaying(false);
+      });
+
+      return () => {
+        // Cleanup listeners
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
+      };
+    }
+  }, []); // Empty dependency array ensures this runs once on mount
+
 
   const stopSound = () => {
     if (audioRef.current) {
         audioRef.current.pause();
-        setIsSoundPlaying(false);
     }
   };
 
@@ -166,24 +177,6 @@ export function MorningBriefing({
     onReset();
   }
 
-  // This effect handles the case where the user has to interact first for sound to play.
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      const handleCanPlay = () => {
-        setIsSoundPlaying(true);
-      };
-      audio.addEventListener('canplay', handleCanPlay);
-      // If audio is paused externally (e.g. control center), update state.
-      const handlePause = () => setIsSoundPlaying(false);
-      audio.addEventListener('pause', handlePause);
-      
-      return () => {
-        audio.removeEventListener('canplay', handleCanPlay);
-        audio.removeEventListener('pause', handlePause);
-      }
-    }
-  }, []);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -195,12 +188,9 @@ export function MorningBriefing({
       <audio
         ref={audioRef}
         src={alarmSoundUrl}
-        autoPlay
         loop
         // Hidden from the user, controlled by our buttons
         style={{ display: 'none' }} 
-        onPlay={() => setIsSoundPlaying(true)}
-        onPause={() => setIsSoundPlaying(false)}
       >
         Your browser does not support the audio element.
       </audio>
@@ -210,7 +200,7 @@ export function MorningBriefing({
             <WeatherCard data={briefingData.weather} />
         </div>
         <div className={cn(animationDelays[1])}>
-            <TrafficCard data={briefingData.traffic} alarmTime={alarmTime}/>
+            <TrafficCard data={briefingData.traffic}/>
         </div>
         <div className={cn("md:col-span-2", animationDelays[2])}>
             <NewsCard data={briefingData.news} />
