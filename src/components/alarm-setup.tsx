@@ -102,7 +102,7 @@ export function AlarmSetup({
       <Card className="w-full max-w-md card-glass">
         <CardHeader className="items-center text-center">
           <AlarmClock className="h-12 w-12 text-primary" />
-          <CardTitle className="text-2xl font-bold">Alarm is Set</CardTitle>
+          <CardTitle className="text-2xl font-bold">Your Current Alarm</CardTitle>
           <CardDescription className="text-lg">
             Wake-up time: <span className="font-semibold text-primary">{alarmTime}</span>
           </CardDescription>
