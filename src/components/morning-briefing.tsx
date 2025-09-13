@@ -151,36 +151,23 @@ export function MorningBriefing({
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    // Instantiate the Audio object and store it in the ref.
-    // This runs only once when the component mounts.
-    audioRef.current = new Audio();
-    audioRef.current.loop = true;
-
-    // The cleanup function for this effect will run when the component unmounts.
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = ''; // Abort any active loading
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     const audio = audioRef.current;
-    if (audio && alarmSoundUrl) {
+    if (audio) {
       audio.src = alarmSoundUrl;
       audio.play().then(() => {
-          setIsSoundPlaying(true);
-      }).catch((error) => {
-          console.error("Audio play failed:", error);
-          // This might happen if user interaction is required.
-          setIsSoundPlaying(false);
+        setIsSoundPlaying(true);
+      }).catch(error => {
+        console.error("Audio play failed:", error);
+        setIsSoundPlaying(false);
       });
+
+      return () => {
+        audio.pause();
+      };
     }
   }, [alarmSoundUrl]);
 
@@ -199,6 +186,7 @@ export function MorningBriefing({
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+      <audio ref={audioRef} loop />
       <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
