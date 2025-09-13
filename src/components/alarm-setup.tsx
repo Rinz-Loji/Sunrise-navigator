@@ -44,11 +44,11 @@ const alarmSchema = z.object({
 });
 
 const defaultSounds = [
-  { name: 'Classic Alarm', url: 'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3' },
-  { name: 'Gentle Bells', url: 'https://assets.mixkit.co/sfx/preview/mixkit-chimes-in-the-wind-1031.mp3' },
-  { name: 'Birds Chirping', url: 'https://assets.mixkit.co/sfx/preview/mixkit-morning-birds-singing-2467.mp3' },
-  { name: 'Soft Chimes', url: 'https://assets.mixkit.co/sfx/preview/mixkit-magic-chime-1572.mp3' },
-  { name: 'Calm Ocean', url: 'https://assets.mixkit.co/sfx/preview/mixkit-sea-waves-in-a-calm-day-1166.mp3' },
+  { name: 'Classic Alarm', url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' },
+  { name: 'Digital Clock', url: 'https://actions.google.com/sounds/v1/alarms/digital_clock.ogg' },
+  { name: 'Bugle Call', url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' },
+  { name: 'Pleasant Bell', url: 'https://actions.google.com/sounds/v1/alarms/medium_bell_ringing_near.ogg' },
+  { name: 'Gentle Wake-up', url: 'https://actions.google.com/sounds/v1/alarms/gentle_soft_ring.ogg' },
 ];
 
 export function AlarmSetup({

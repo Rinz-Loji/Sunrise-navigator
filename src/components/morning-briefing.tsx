@@ -155,26 +155,23 @@ export function MorningBriefing({
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    audioRef.current = new Audio(alarmSoundUrl);
-    audioRef.current.loop = true;
+    if (alarmSoundUrl && audioRef.current) {
+        audioRef.current.src = alarmSoundUrl;
+        audioRef.current.loop = true;
+        audioRef.current.play().then(() => {
+            setIsSoundPlaying(true);
+        }).catch((error) => {
+            console.error("Audio play failed:", error);
+            // Autoplay was blocked. User might need to click a button.
+            setIsSoundPlaying(false);
+        });
+    }
 
-    const playSound = async () => {
-      try {
-        await audioRef.current?.play();
-        setIsSoundPlaying(true);
-      } catch (error) {
-        console.error("Audio play failed:", error);
-        // Autoplay was blocked, user will have to click play.
-        setIsSoundPlaying(false);
-      }
-    };
-    
-    playSound();
-
-    // Cleanup
+    // Cleanup function to pause sound when component unmounts
     return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
     };
   }, [alarmSoundUrl]);
 
@@ -193,6 +190,7 @@ export function MorningBriefing({
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+        <audio ref={audioRef} />
       <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
