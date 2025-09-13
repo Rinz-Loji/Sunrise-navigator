@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -155,29 +155,32 @@ export function MorningBriefing({
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    // Create the audio element when the component mounts
+    // Instantiate the Audio object and store it in the ref.
+    // This runs only once when the component mounts.
     audioRef.current = new Audio();
     audioRef.current.loop = true;
 
-    // Cleanup function to stop and reset audio when the component unmounts
+    // The cleanup function for this effect will run when the component unmounts.
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.src = ''; // Abort any active loading
         audioRef.current = null;
       }
     };
   }, []);
 
   useEffect(() => {
-    // Play sound when the url is available
-    if (alarmSoundUrl && audioRef.current) {
-        audioRef.current.src = alarmSoundUrl;
-        audioRef.current.play().then(() => {
-            setIsSoundPlaying(true);
-        }).catch((error) => {
-            console.error("Audio play failed. User interaction might be required.", error);
-            setIsSoundPlaying(false);
-        });
+    const audio = audioRef.current;
+    if (audio && alarmSoundUrl) {
+      audio.src = alarmSoundUrl;
+      audio.play().then(() => {
+          setIsSoundPlaying(true);
+      }).catch((error) => {
+          console.error("Audio play failed:", error);
+          // This might happen if user interaction is required.
+          setIsSoundPlaying(false);
+      });
     }
   }, [alarmSoundUrl]);
 
