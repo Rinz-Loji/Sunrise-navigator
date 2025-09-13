@@ -12,7 +12,7 @@ import placeholderImages from '@/lib/placeholder-images.json';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Loader2, BellRing, Clock, TrafficCone, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, TrafficCone, Sunrise } from 'lucide-react';
 
 function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: string, trafficData: TrafficData | null }) {
   const newTime = trafficData && trafficData.delay > 0
@@ -48,6 +48,7 @@ function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: strin
 
 
 export default function SunriseNavigator() {
+  const [view, setView] = useState<'welcome' | 'app'>('welcome');
   const [alarmSettings, setAlarmSettings] = useState<AlarmSettings | null>(null);
   const [isAlarmSet, setIsAlarmSet] = useState(false);
   const [isCheckingTraffic, setIsCheckingTraffic] = useState(false);
@@ -135,11 +136,33 @@ export default function SunriseNavigator() {
     setAdjustedAlarmTime(null);
     setIsCheckingTraffic(false);
     setTrafficData(null);
+    setView('welcome');
   };
   
   const alarmDisplayTime = adjustedAlarmTime || alarmSettings?.time || '';
 
   const renderContent = () => {
+    if (view === 'welcome') {
+      return (
+        <Card className="w-full max-w-md shadow-lg text-center">
+            <CardHeader className="items-center">
+                <Sunrise className="h-12 w-12 text-primary" />
+                <CardTitle className="text-2xl font-bold">Welcome to Sunrise Navigator</CardTitle>
+                <CardDescription>Your smart morning assistant.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">Get personalized briefings with live traffic, weather, news, and a dose of motivation to start your day right.</p>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+                <Button onClick={() => setView('app')}>
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </CardFooter>
+        </Card>
+      );
+    }
+
     if (isAlarmRinging) {
       return briefingData && quote && alarmSettings ? (
         <MorningBriefing
@@ -180,7 +203,7 @@ export default function SunriseNavigator() {
       <div
         className={cn(
           'flex justify-center items-center w-full transition-opacity duration-500',
-           (isAlarmRinging || isCheckingTraffic) ? 'opacity-100' : 'opacity-100', // manage visiblity inside renderContent now
+           (isAlarmRinging || isCheckingTraffic) ? 'opacity-100' : 'opacity-100',
         )}
       >
         {renderContent()}

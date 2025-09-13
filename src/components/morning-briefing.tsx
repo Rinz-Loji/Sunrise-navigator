@@ -63,7 +63,7 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
         {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min</div>}
       </div>
       <p className="text-xs text-muted-foreground">
-        Estimated travel to {data.destination}
+        To {data.destination}
       </p>
       {hasSuggestion && (
          <div className="mt-4 p-2 bg-amber-100/50 dark:bg-amber-900/20 rounded-lg border border-amber-200/50 dark:border-amber-900/50">
@@ -180,7 +180,7 @@ export function MorningBriefing({
           </Button>
         )}
         <Button variant="outline" onClick={handleReset}>
-          End Briefing & Start Day
+          Reset App
         </Button>
       </div>
     </div>
