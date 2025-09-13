@@ -20,13 +20,11 @@ import {
   BellRing,
   Music,
   MapPin,
-  PlayCircle,
-  PauseCircle,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { validateAddress as validateAddressAction } from '@/lib/actions';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -78,8 +76,6 @@ export function AlarmSetup({
 
   const [isvalidatingHome, setIsValidatingHome] = useState(false);
   const [isValidatingDestination, setIsValidatingDestination] = useState(false);
-  const [isPreviewing, setIsPreviewing] = useState(false);
-  const audioPreviewRef = useRef<HTMLAudioElement>(null);
 
   const handleAddressValidation = async (
     field: 'home' | 'destination',
@@ -102,27 +98,6 @@ export function AlarmSetup({
 
     if (field === 'home') setIsValidatingHome(false);
     if (field === 'destination') setIsValidatingDestination(false);
-  };
-
-  const stopPreview = () => {
-    if (audioPreviewRef.current) {
-        audioPreviewRef.current.pause();
-        audioPreviewRef.current.currentTime = 0;
-        setIsPreviewing(false);
-    }
-  };
-
-  const handlePreview = () => {
-    if (audioPreviewRef.current) {
-        if (isPreviewing) {
-            stopPreview();
-        } else {
-            const selectedSoundUrl = form.getValues('alarmSound');
-            audioPreviewRef.current.src = selectedSoundUrl;
-            audioPreviewRef.current.play();
-            setIsPreviewing(true);
-        }
-    }
   };
 
   if (isAlarmSet) {
@@ -278,34 +253,27 @@ export function AlarmSetup({
                             <Music className="h-6 w-6" />
                             Alarm Sound
                         </FormLabel>
-                        <div className="flex items-center gap-2">
-                            <Select 
-                            onValueChange={(value) => {
-                                if (isPreviewing) stopPreview();
-                                field.onChange(value);
-                                const soundName = defaultSounds.find(s => s.url === value)?.name
-                                form.setValue('alarmSoundName', soundName)
-                            }} 
-                            defaultValue={field.value}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an alarm sound" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                {defaultSounds.map(sound => (
-                                    <SelectItem key={sound.url} value={sound.url}>
-                                    {sound.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                            <Button type="button" variant="outline" size="icon" onClick={handlePreview}>
-                                {isPreviewing ? <PauseCircle /> : <PlayCircle />}
-                            </Button>
-                            <audio ref={audioPreviewRef} onEnded={stopPreview} />
-                        </div>
+                        <Select 
+                        onValueChange={(value) => {
+                            field.onChange(value);
+                            const soundName = defaultSounds.find(s => s.url === value)?.name
+                            form.setValue('alarmSoundName', soundName)
+                        }} 
+                        defaultValue={field.value}
+                        >
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select an alarm sound" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {defaultSounds.map(sound => (
+                                <SelectItem key={sound.url} value={sound.url}>
+                                {sound.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                     </FormItem>
                 )}
