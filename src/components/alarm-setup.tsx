@@ -1,6 +1,6 @@
 "use client";
 
-import type { AlarmSettings } from '@/lib/types';
+import type { AlarmSettings, MusicTrack } from '@/lib/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,11 +20,14 @@ import {
   BellRing,
   Music,
   MapPin,
+  Search,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { validateAddress as validateAddressAction } from '@/lib/actions';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { validateAddress as validateAddressAction, searchMusic as searchMusicAction } from '@/lib/actions';
 import { useState } from 'react';
+import { Separator } from './ui/separator';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -35,7 +38,7 @@ interface AlarmSetupProps {
   isSimulating: boolean;
 }
 
-const alarmSounds = [
+const defaultSounds = [
   { name: 'Classic Alarm', url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' },
   { name: 'Digital Clock', url: 'https://actions.google.com/sounds/v1/alarms/digital_clock.ogg' },
   { name: 'Bugle Call', url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' },
@@ -47,7 +50,7 @@ const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
-  alarmSound: z.string().url('Please select an alarm sound'),
+  alarmSound: z.string().min(1, 'Please select an alarm sound'),
   weatherLocation: z.string().min(3, 'Weather location is required'),
 });
 
@@ -65,13 +68,18 @@ export function AlarmSetup({
       time: '07:00',
       home: '1600 Amphitheatre Parkway, Mountain View, CA',
       destination: '1 Market St, San Francisco, CA',
-      alarmSound: alarmSounds[0].url,
+      alarmSound: defaultSounds[0].url,
       weatherLocation: 'San Francisco, CA',
     },
   });
 
   const [isvalidatingHome, setIsValidatingHome] = useState(false);
   const [isValidatingDestination, setIsValidatingDestination] = useState(false);
+  const [soundSelectionType, setSoundSelectionType] = useState<'default' | 'search'>('default');
+  const [musicSearchQuery, setMusicSearchQuery] = useState('');
+  const [isSearchingMusic, setIsSearchingMusic] = useState(false);
+  const [musicSearchResults, setMusicSearchResults] = useState<MusicTrack[]>([]);
+  const [noResultsFound, setNoResultsFound] = useState(false);
 
   const handleAddressValidation = async (
     field: 'home' | 'destination',
@@ -95,6 +103,34 @@ export function AlarmSetup({
     if (field === 'home') setIsValidatingHome(false);
     if (field === 'destination') setIsValidatingDestination(false);
   };
+  
+  const handleMusicSearch = async () => {
+    if (!musicSearchQuery) return;
+    setIsSearchingMusic(true);
+    setNoResultsFound(false);
+    setMusicSearchResults([]);
+
+    const results = await searchMusicAction({ query: musicSearchQuery });
+
+    if (results.length === 0) {
+        setNoResultsFound(true);
+    } else {
+        setMusicSearchResults(results);
+    }
+
+    setIsSearchingMusic(false);
+  }
+
+  const handleSoundTypeChange = (value: 'default' | 'search') => {
+    setSoundSelectionType(value);
+    setMusicSearchResults([]);
+    setNoResultsFound(false);
+    if (value === 'default') {
+        form.setValue('alarmSound', defaultSounds[0].url);
+    } else {
+        form.setValue('alarmSound', '');
+    }
+  }
 
 
   if (isAlarmSet) {
@@ -234,33 +270,91 @@ export function AlarmSetup({
                 </FormItem>
               )}
             />
-             <FormField
-                  control={form.control}
-                  name="alarmSound"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-3">
-                        <Music className="h-6 w-6" />
-                        Alarm Sound
-                      </FormLabel>
-                       <Select onValuechange={field.onChange} defaultValue={field.value}>
+            <FormField
+                control={form.control}
+                name="alarmSound"
+                render={({ field }) => (
+                    <FormItem className="space-y-4">
+                        <FormLabel className="flex items-center gap-3">
+                            <Music className="h-6 w-6" />
+                            Alarm Sound
+                        </FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an alarm sound" />
-                          </SelectTrigger>
+                            <RadioGroup
+                                onValueChange={handleSoundTypeChange}
+                                defaultValue={soundSelectionType}
+                                className="flex gap-4"
+                            >
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                        <RadioGroupItem value="default" />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">Default Sound</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                        <RadioGroupItem value="search" />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">Search for Music</FormLabel>
+                                </FormItem>
+                            </RadioGroup>
                         </FormControl>
-                        <SelectContent>
-                          {alarmSounds.map(sound => (
-                            <SelectItem key={sound.url} value={sound.url}>
-                              {sound.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+
+                        {soundSelectionType === 'default' && (
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select an alarm sound" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {defaultSounds.map(sound => (
+                                    <SelectItem key={sound.url} value={sound.url}>
+                                    {sound.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                        <FormMessage />
                     </FormItem>
-                  )}
-                />
+                )}
+            />
+            {soundSelectionType === 'search' && (
+                <div className="space-y-4 pt-4 border-t border-border/50">
+                    <div className="flex gap-2">
+                         <Input
+                            placeholder="Enter a song title..."
+                            value={musicSearchQuery}
+                            onChange={(e) => setMusicSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleMusicSearch()}
+                        />
+                        <Button type="button" onClick={handleMusicSearch} disabled={isSearchingMusic} size="icon">
+                            {isSearchingMusic ? <Loader2 className="animate-spin" /> : <Search />}
+                        </Button>
+                    </div>
+
+                    {isSearchingMusic && <div className="text-sm text-muted-foreground">Searching...</div>}
+                    {noResultsFound && <div className="text-sm text-muted-foreground">This track is not present in the database.</div>}
+
+                    {musicSearchResults.length > 0 && (
+                        <div className="space-y-2">
+                             <p className="text-sm font-medium">Search Results</p>
+                             <div className="max-h-40 overflow-y-auto space-y-1 rounded-md border p-2">
+                                {musicSearchResults.map(track => (
+                                    <div key={track.url}
+                                         onClick={() => form.setValue('alarmSound', track.url, { shouldValidate: true })}
+                                         className={`p-2 rounded-md cursor-pointer text-sm hover:bg-accent ${form.getValues('alarmSound') === track.url ? 'bg-accent font-semibold' : ''}`}
+                                    >
+                                        <p>{track.name}</p>
+                                        <p className="text-xs text-muted-foreground">{track.artist}</p>
+                                    </div>
+                                ))}
+                             </div>
+                        </div>
+                    )}
+                </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full btn-gradient">
