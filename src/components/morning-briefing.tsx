@@ -14,6 +14,7 @@ import {
   VolumeX,
   AlertTriangle,
   LogIn,
+  PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
@@ -152,18 +153,21 @@ export function MorningBriefing({
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isAlarmPlaying, setIsAlarmPlaying] = useState(true);
+  const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
+  const [isBriefingStarted, setIsBriefingStarted] = useState(false);
 
-  useEffect(() => {
+  const handleStartBriefing = () => {
+    setIsBriefingStarted(true);
     if (audioRef.current) {
-      audioRef.current.play().catch(error => {
-        // Autoplay is often blocked, which is fine. The user can start it.
-        console.warn("Audio autoplay was blocked by the browser.", error);
-        setIsAlarmPlaying(true); // Ensure button is shown even if autoplay fails
-      });
+        audioRef.current.play().catch(error => {
+            console.error("Audio play failed:", error);
+            // Even if it fails, we consider the alarm "playing" from a UI perspective
+            // so the stop button appears.
+        });
+        setIsAlarmPlaying(true);
     }
-  }, []);
-
+  };
+  
   const handleStopAlarm = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -175,6 +179,26 @@ export function MorningBriefing({
   const handleReset = () => {
     handleStopAlarm();
     onReset();
+  }
+
+  if (!isBriefingStarted) {
+    return (
+        <div className="w-full max-w-md mx-auto text-center animate-fade-in-up">
+            <Card className="card-glass">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-bold">Your Alarm is Ringing</CardTitle>
+                    <CardDescription>Time to start your day!</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button onClick={handleStartBriefing} size="lg" className="btn-gradient w-full text-lg py-8">
+                        <PlayCircle className="h-8 w-8 mr-4" />
+                        Wake Up & See Briefing
+                    </Button>
+                </CardContent>
+            </Card>
+            <AlarmSound ref={audioRef} soundUrl={alarmSoundUrl} />
+        </div>
+    )
   }
 
   return (
