@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -27,7 +27,6 @@ interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
-  audioRef: RefObject<HTMLAudioElement>;
   onReset: () => void;
 }
 
@@ -146,44 +145,13 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
-  audioRef,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const [isAlarmPlaying, setIsAlarmPlaying] = useState(!audioRef.current?.paused);
 
-  const handleStopAlarm = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsAlarmPlaying(false);
-    }
-  };
-  
   const handleReset = () => {
-    handleStopAlarm();
     onReset();
   }
-
-  // Effect to sync playing state with audio element
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      const onPlay = () => setIsAlarmPlaying(true);
-      const onPause = () => setIsAlarmPlaying(false);
-      
-      audio.addEventListener('play', onPlay);
-      audio.addEventListener('pause', onPause);
-      
-      // Initial sync
-      setIsAlarmPlaying(!audio.paused);
-
-      return () => {
-        audio.removeEventListener('play', onPlay);
-        audio.removeEventListener('pause', onPause);
-      };
-    }
-  }, [audioRef]);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -208,12 +176,6 @@ export function MorningBriefing({
       </div>
       
       <div className="text-center flex items-center justify-center gap-4 animate-fade-in-up-delay-4">
-        {isAlarmPlaying && (
-          <Button variant="destructive" onClick={handleStopAlarm}>
-            <VolumeX className="h-6 w-6"/>
-            Stop Alarm
-          </Button>
-        )}
         <Button variant="outline" onClick={handleReset}>
           Reset App
         </Button>

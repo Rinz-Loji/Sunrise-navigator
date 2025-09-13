@@ -22,7 +22,6 @@ import {
   MapPin,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { validateAddress as validateAddressAction } from '@/lib/actions';
 import { useState } from 'react';
 
@@ -33,23 +32,12 @@ interface AlarmSetupProps {
   isAlarmSet: boolean;
   alarmTime: string | null;
   isSimulating: boolean;
-  alarmSoundName?: string;
 }
-
-const defaultSounds = [
-  { name: 'Classic Alarm', url: 'https://cdn.pixabay.com/audio/2022/02/21/audio_1b2d23c104.mp3' },
-  { name: 'Digital Clock', url: 'https://cdn.pixabay.com/audio/2023/04/18/audio_2731df14c5.mp3' },
-  { name: 'Sci-Fi Alarm', url: 'https://cdn.pixabay.com/audio/2022/10/18/audio_a758d62559.mp3' },
-  { name: 'Pleasant Bell', url: 'https://cdn.pixabay.com/audio/2022/05-27/audio_8342f02636.mp3' },
-  { name: 'Gentle Wake-up', url: 'https://cdn.pixabay.com/audio/2022/06-08/audio_14545d96a8.mp3' },
-];
 
 const alarmSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
-  alarmSound: z.string().min(1, 'Please select an alarm sound'),
-  alarmSoundName: z.string().optional(),
   weatherLocation: z.string().min(3, 'Weather location is required'),
 });
 
@@ -60,7 +48,6 @@ export function AlarmSetup({
   isAlarmSet,
   alarmTime,
   isSimulating,
-  alarmSoundName,
 }: AlarmSetupProps) {
   const form = useForm<AlarmSettings>({
     resolver: zodResolver(alarmSchema),
@@ -68,8 +55,6 @@ export function AlarmSetup({
       time: '07:00',
       home: '1600 Amphitheatre Parkway, Mountain View, CA',
       destination: '1 Market St, San Francisco, CA',
-      alarmSound: defaultSounds[0].url,
-      alarmSoundName: defaultSounds[0].name,
       weatherLocation: 'San Francisco, CA',
     },
   });
@@ -109,12 +94,6 @@ export function AlarmSetup({
           <CardDescription className="text-lg">
             Wake-up time: <span className="font-semibold text-primary">{alarmTime}</span>
           </CardDescription>
-           {alarmSoundName && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
-              <Music className="h-4 w-4" />
-              <span>{alarmSoundName}</span>
-            </div>
-          )}
         </CardHeader>
         <CardContent>
           <p className="text-center text-sm text-muted-foreground">
@@ -242,41 +221,6 @@ export function AlarmSetup({
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            
-            <FormField
-                control={form.control}
-                name="alarmSound"
-                render={({ field }) => (
-                    <FormItem className="space-y-4">
-                        <FormLabel className="flex items-center gap-3">
-                            <Music className="h-6 w-6" />
-                            Alarm Sound
-                        </FormLabel>
-                        <Select 
-                        onValueChange={(value) => {
-                            field.onChange(value);
-                            const soundName = defaultSounds.find(s => s.url === value)?.name
-                            form.setValue('alarmSoundName', soundName)
-                        }} 
-                        defaultValue={field.value}
-                        >
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select an alarm sound" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {defaultSounds.map(sound => (
-                                <SelectItem key={sound.url} value={sound.url}>
-                                {sound.name}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                )}
             />
           </CardContent>
           <CardFooter>
