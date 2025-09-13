@@ -44,11 +44,6 @@ const defaultSounds = [
   { name: 'Sci-Fi Alarm', url: 'https://cdn.pixabay.com/audio/2022/10/18/audio_a758d62559.mp3' },
   { name: 'Pleasant Bell', url: 'https://cdn.pixabay.com/audio/2022/05-27/audio_8342f02636.mp3' },
   { name: 'Gentle Wake-up', url: 'https://cdn.pixabay.com/audio/2022/06-08/audio_14545d96a8.mp3' },
-  { name: 'Bird Ambience', url: 'https://cdn.pixabay.com/audio/2023/10/04/audio_359302e7c5.mp3' },
-  { name: 'Forest Sounds', url: 'https://cdn.pixabay.com/audio/2024/02/23/audio_34444342a3.mp3' },
-  { name: 'Ocean Waves', url: 'https://cdn.pixabay.com/audio/2024/01/16/audio_98317374a9.mp3' },
-  { name: 'Calm Piano', url: 'https://cdn.pixabay.com/audio/2022/06-03/audio_73b2a26514.mp3' },
-  { name: 'Lofi Beat', url: 'https://cdn.pixabay.com/audio/2022/08/04/audio_2dde648d91.mp3' }
 ];
 
 const alarmSchema = z.object({
@@ -286,10 +281,10 @@ export function AlarmSetup({
                         <div className="flex items-center gap-2">
                             <Select 
                             onValueChange={(value) => {
-                                field.onChange(value)
+                                if (isPreviewing) stopPreview();
+                                field.onChange(value);
                                 const soundName = defaultSounds.find(s => s.url === value)?.name
                                 form.setValue('alarmSoundName', soundName)
-                                stopPreview();
                             }} 
                             defaultValue={field.value}
                             >
