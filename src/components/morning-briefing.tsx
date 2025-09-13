@@ -155,14 +155,14 @@ export function MorningBriefing({
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(true);
 
   useEffect(() => {
-    if (audioRef.current) {
+    if (audioRef.current && alarmSoundUrl) {
       audioRef.current.play().catch(error => {
         console.error("Audio play failed:", error);
         // If autoplay fails, show the button to let the user start it manually.
         setIsAlarmPlaying(false);
       });
     }
-  }, []);
+  }, [alarmSoundUrl]);
   
   const handleStopAlarm = () => {
     if (audioRef.current) {
