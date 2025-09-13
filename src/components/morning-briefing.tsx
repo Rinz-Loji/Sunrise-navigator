@@ -13,12 +13,14 @@ import {
   MapPin,
   VolumeX,
   AlertTriangle,
+  LogIn,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
 import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { addMinutes, format, parse } from 'date-fns';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -46,9 +48,13 @@ const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   </InfoCard>
 );
 
-const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
+const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarmTime: string | null }) => {
   const { toast } = useToast();
   const hasSuggestion = data.suggestion && data.delay > 0;
+
+  const arrivalTime = alarmTime 
+    ? format(addMinutes(parse(alarmTime, 'HH:mm', new Date()), data.commuteTime), 'HH:mm')
+    : null;
 
   const handleAdjust = () => {
     toast({
@@ -68,9 +74,15 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
                 <Clock className="h-3 w-3" />
                 <span>Est. Time</span>
             </div>
-            {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min delay</div>}
+            {arrivalTime && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <LogIn className="h-3 w-3" />
+                    <span>Arrival: {arrivalTime}</span>
+                </div>
+            )}
         </div>
-      <p className="text-xs text-muted-foreground">
+        {data.delay > 0 && <div className="text-sm font-semibold text-amber-500 mt-1">+{data.delay} min delay</div>}
+      <p className="text-xs text-muted-foreground mt-1">
         To {data.destination}
       </p>
       {hasSuggestion && (
@@ -164,7 +176,7 @@ export function MorningBriefing({
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <WeatherCard data={briefingData.weather} />
-        <TrafficCard data={briefingData.traffic} />
+        <TrafficCard data={briefingData.traffic} alarmTime={alarmTime}/>
         <NewsCard data={briefingData.news} />
         <QuoteCard data={quote} />
       </div>
