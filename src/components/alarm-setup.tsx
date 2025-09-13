@@ -20,7 +20,6 @@ import {
   BellRing,
   Music,
   MapPin,
-  Youtube,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -50,7 +49,6 @@ const alarmSchema = z.object({
   destination: z.string().min(3, 'Destination is required'),
   alarmSound: z.string().url('Please select an alarm sound'),
   weatherLocation: z.string().min(3, 'Weather location is required'),
-  musicQuery: z.string().min(2, 'Please enter a song or artist'),
 });
 
 export function AlarmSetup({
@@ -69,7 +67,6 @@ export function AlarmSetup({
       destination: '1 Market St, San Francisco, CA',
       alarmSound: alarmSounds[0].url,
       weatherLocation: 'San Francisco, CA',
-      musicQuery: 'lofi hip hop radio - beats to relax/study to',
     },
   });
 
@@ -216,22 +213,6 @@ export function AlarmSetup({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="musicQuery"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Youtube className="h-4 w-4" />
-                        Wake-up Song
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter a song or artist" {...field} />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -32,7 +32,6 @@ export type BriefingData = {
   traffic: TrafficData;
   calendar: CalendarEvent;
   news: NewsHeadline[];
-  musicVideoId: string;
 };
 
 export type AlarmSettings = {
@@ -41,5 +40,4 @@ export type AlarmSettings = {
   destination: string;
   alarmSound: string;
   weatherLocation: string;
-  musicQuery: string;
 };

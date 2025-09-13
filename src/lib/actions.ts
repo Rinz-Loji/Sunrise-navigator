@@ -5,7 +5,6 @@ import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyze
 import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
 import { getNewsHeadlines as getNewsHeadlinesFlow } from '@/ai/flows/news-flow';
 import { validateAddress as validateAddressFlow } from '@/ai/flows/address-validator-flow';
-import { findMusicVideo as findMusicVideoFlow } from '@/ai/flows/youtube-search-flow';
 import type { BriefingData, MotivationalQuote, NewsHeadline, TrafficData, WeatherData } from './types';
 
 // Mock function to simulate API calls
@@ -36,17 +35,10 @@ export async function validateAddress(input: {
     return validateAddressFlow(input);
 }
 
-export async function findMusicVideo(query: string): Promise<string> {
-    const result = await findMusicVideoFlow({ query });
-    return result.videoId;
-}
-
-
 export async function getBriefingData(
   home: string,
   destination: string,
   weatherLocation: string,
-  musicQuery: string,
   trafficInfo?: TrafficData
 ): Promise<BriefingData> {
   // We don't need to simulate a long delay if we're just fetching supplementary data
@@ -60,12 +52,11 @@ export async function getBriefingData(
       destination: destination,
     }));
   
-  const [weatherData, newsData, musicVideoId] = await Promise.all([
+  const [weatherData, newsData] = await Promise.all([
     getWeatherData({
       location: weatherLocation,
     }),
     getNewsHeadlines(),
-    findMusicVideo(musicQuery),
   ]);
 
   // In a real app, you would fetch from Google Calendar API
@@ -77,7 +68,6 @@ export async function getBriefingData(
       time: '9:00 AM',
     },
     news: newsData,
-    musicVideoId: musicVideoId,
   };
 
   return mockData;

@@ -20,7 +20,6 @@ import { InfoCard } from './info-card';
 import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { MusicPlayer } from './music-player';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -32,12 +31,14 @@ interface MorningBriefingProps {
 
 const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   <InfoCard title={data.location} icon={MapPin}>
-    <div className="text-4xl font-bold">{data.temperature}°</div>
-    <div className="flex items-center justify-between text-xs text-muted-foreground">
-      <div className="flex items-center gap-1">
-        <Cloudy className="h-4 w-4" />
-        <span>{data.condition}</span>
-      </div>
+    <div className="flex items-center gap-4">
+        <div className="text-4xl font-bold">{data.temperature}°</div>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Cloudy className="h-4 w-4" />
+            <span>{data.condition}</span>
+        </div>
+    </div>
+    <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
       <div className="flex items-center gap-1">
         <Wind className="h-4 w-4" />
         <span>12 km/h</span>
@@ -59,13 +60,17 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
 
   return (
     <InfoCard title="Your Commute" icon={Car}>
-      <div className="flex items-center gap-4">
         <div className="flex items-baseline gap-2">
             <div className="text-2xl font-bold">{data.commuteTime}</div>
             <span className="text-xs">mins</span>
         </div>
-        {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min</div>}
-      </div>
+        <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>Est. Time</span>
+            </div>
+            {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min delay</div>}
+        </div>
       <p className="text-xs text-muted-foreground">
         To {data.destination}
       </p>
@@ -166,22 +171,16 @@ export function MorningBriefing({
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {briefingData.musicVideoId ? (
-          <div className="lg:col-span-2">
-            <MusicPlayer videoId={briefingData.musicVideoId} />
-          </div>
-        ) : <WeatherCard data={briefingData.weather} />}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <WeatherCard data={briefingData.weather} />
         <TrafficCard data={briefingData.traffic} />
         <CalendarCard data={briefingData.calendar} />
-        <div className="lg:col-span-2 grid gap-4">
-            <NewsCard data={briefingData.news} />
-            <QuoteCard data={quote} />
-        </div>
+        <NewsCard data={briefingData.news} />
+        <QuoteCard data={quote} />
       </div>
       
       <div className="text-center flex items-center justify-center gap-4">
-        {isAlarmPlaying && !briefingData.musicVideoId && (
+        {isAlarmPlaying && (
           <Button variant="destructive" onClick={handleStopAlarm}>
             <VolumeX />
             Stop Alarm
