@@ -111,7 +111,7 @@ export function AlarmSetup({
     const results = await searchMusicAction({ query: musicSearchQuery });
     
     setMusicSearchResults(results);
-
+    
     setIsSearchingMusic(false);
   }
 
@@ -273,27 +273,6 @@ export function AlarmSetup({
                             Alarm Sound
                         </FormLabel>
                         <FormControl>
-                            <RadioGroup
-                                onValueChange={handleSoundTypeChange}
-                                defaultValue={soundSelectionType}
-                                className="flex gap-4"
-                            >
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl>
-                                        <RadioGroupItem value="default" />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">Default Sound</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                    <FormControl>
-                                        <RadioGroupItem value="search" />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">Search for Music</FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                        </FormControl>
-
-                        {soundSelectionType === 'default' && (
                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                 <SelectTrigger>
@@ -308,73 +287,11 @@ export function AlarmSetup({
                                 ))}
                                 </SelectContent>
                             </Select>
-                        )}
+                        </FormControl>
                         <FormMessage />
                     </FormItem>
                 )}
             />
-            {soundSelectionType === 'search' && (
-                <div className="space-y-4 pt-4 border-t border-border/50">
-                    <div className="flex gap-2">
-                         <Input
-                            placeholder="Enter a song title..."
-                            value={musicSearchQuery}
-                            onChange={(e) => setMusicSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    handleMusicSearch();
-                                }
-                            }}
-                        />
-                        <Button type="button" onClick={handleMusicSearch} disabled={isSearchingMusic} size="icon">
-                            {isSearchingMusic ? <Loader2 className="animate-spin" /> : <Search />}
-                        </Button>
-                    </div>
-
-                    {isSearchingMusic && (
-                        <div className="text-sm text-muted-foreground flex items-center gap-2">
-                            <Loader2 className="animate-spin h-4 w-4"/>Searching...
-                        </div>
-                    )}
-
-                    {!isSearchingMusic && musicSearchResults.length === 0 && musicSearchQuery && (
-                        <div className="text-sm text-muted-foreground">
-                            This track is not present in the database.
-                        </div>
-                    )}
-
-                    {musicSearchResults.length > 0 && (
-                        <div className="space-y-4">
-                             <p className="text-sm font-medium">Search Results</p>
-                             <div className="max-h-64 overflow-y-auto space-y-4 rounded-md border p-4">
-                                {musicSearchResults.map(track => (
-                                    <div key={track.url}
-                                         className={`p-3 rounded-md transition-all ${form.getValues('alarmSound') === track.url ? 'bg-accent/50 ring-2 ring-primary' : 'bg-background/50'}`}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="font-semibold">{track.name}</p>
-                                                <p className="text-xs text-muted-foreground">{track.artist}</p>
-                                            </div>
-                                            <Button 
-                                                size="sm" 
-                                                variant={form.getValues('alarmSound') === track.url ? 'default' : 'outline'}
-                                                onClick={() => form.setValue('alarmSound', track.url, { shouldValidate: true })}
-                                            >
-                                                {form.getValues('alarmSound') === track.url ? 'Selected' : 'Select'}
-                                            </Button>
-                                        </div>
-                                        <audio controls src={track.url} className="w-full mt-3 h-10">
-                                            Your browser does not support the audio element.
-                                        </audio>
-                                    </div>
-                                ))}
-                             </div>
-                        </div>
-                    )}
-                </div>
-            )}
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full btn-gradient">
