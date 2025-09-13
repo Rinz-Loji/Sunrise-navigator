@@ -20,6 +20,7 @@ import { InfoCard } from './info-card';
 import { AlarmSound } from './alarm-sound';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { MusicPlayer } from './music-player';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -58,8 +59,11 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic'] }) => {
 
   return (
     <InfoCard title="Your Commute" icon={Car}>
-      <div className="flex items-baseline gap-2">
-        <div className="text-2xl font-bold">{data.commuteTime} mins</div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-baseline gap-2">
+            <div className="text-2xl font-bold">{data.commuteTime}</div>
+            <span className="text-xs">mins</span>
+        </div>
         {data.delay > 0 && <div className="text-sm font-semibold text-amber-500">+{data.delay} min</div>}
       </div>
       <p className="text-xs text-muted-foreground">
@@ -163,7 +167,11 @@ export function MorningBriefing({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <WeatherCard data={briefingData.weather} />
+        {briefingData.musicVideoId ? (
+          <div className="lg:col-span-2">
+            <MusicPlayer videoId={briefingData.musicVideoId} />
+          </div>
+        ) : <WeatherCard data={briefingData.weather} />}
         <TrafficCard data={briefingData.traffic} />
         <CalendarCard data={briefingData.calendar} />
         <div className="lg:col-span-2 grid gap-4">
@@ -173,7 +181,7 @@ export function MorningBriefing({
       </div>
       
       <div className="text-center flex items-center justify-center gap-4">
-        {isAlarmPlaying && (
+        {isAlarmPlaying && !briefingData.musicVideoId && (
           <Button variant="destructive" onClick={handleStopAlarm}>
             <VolumeX />
             Stop Alarm
