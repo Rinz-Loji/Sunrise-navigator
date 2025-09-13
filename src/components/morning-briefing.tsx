@@ -33,7 +33,7 @@ interface MorningBriefingProps {
 const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   <InfoCard title={data.location} icon={MapPin}>
     <div className="flex items-center gap-4">
-        <div className="text-4xl font-bold">{data.temperature}°</div>
+        <div className="text-4xl font-bold">{data.temperature}°C</div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Cloudy className="h-4 w-4" />
             <span>{data.condition}</span>
@@ -59,7 +59,7 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
   const handleAdjust = () => {
     toast({
         title: "Suggestion Applied",
-        description: "Your schedule has been updated to accommodate the traffic delay."
+        description: "In a real app, your calendar and contacts would be notified."
     })
   }
 
@@ -81,17 +81,17 @@ const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarm
                 </div>
             )}
         </div>
-        {data.delay > 0 && <div className="text-sm font-semibold text-amber-500 mt-1">+{data.delay} min delay</div>}
+        {data.delay > 0 && <div className="text-sm font-semibold text-accent mt-1">+{data.delay} min delay</div>}
       <p className="text-xs text-muted-foreground mt-1">
         To {data.destination}
       </p>
       {hasSuggestion && (
-         <div className="mt-4 p-2 bg-amber-100/50 dark:bg-amber-900/20 rounded-lg border border-amber-200/50 dark:border-amber-900/50">
+         <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/20">
             <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5"/>
+                <AlertTriangle className="h-4 w-4 text-accent mt-0.5"/>
                 <div>
-                    <p className="text-xs text-amber-800 dark:text-amber-200">{data.suggestion}</p>
-                    <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1" onClick={handleAdjust}>Adjust & Notify</Button>
+                    <p className="text-xs text-accent-foreground/80">{data.suggestion}</p>
+                    <Button size="sm" variant="link" className="text-xs h-auto p-0 mt-1 text-accent" onClick={handleAdjust}>Adjust & Notify</Button>
                 </div>
             </div>
          </div>
@@ -107,9 +107,9 @@ const NewsCard = ({ data }: { data: BriefingData['news'] }) => (
       <Newspaper className="h-4 w-4 text-muted-foreground" />
     </CardHeader>
     <CardContent>
-      <ul className="space-y-2">
+      <ul className="space-y-3 pt-2">
         {data.map((item) => (
-          <li key={item.id} className="text-sm">
+          <li key={item.id} className="text-sm leading-snug">
             <span className="font-semibold">{item.title}</span>
             <span className="text-xs text-muted-foreground"> - {item.source}</span>
           </li>
@@ -126,7 +126,7 @@ const QuoteCard = ({ data }: { data: MotivationalQuote }) => (
         <Quote className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <blockquote className="border-l-2 border-primary pl-4 italic">
+        <blockquote className="border-l-2 border-primary pl-4 italic text-foreground/80">
             "{data.quote}"
         </blockquote>
         <p className="text-right text-xs text-muted-foreground mt-2">- {data.author}</p>
@@ -148,7 +148,9 @@ export function MorningBriefing({
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.play().catch(error => {
+        // Autoplay is often blocked, which is fine. The user can start it.
         console.warn("Audio autoplay was blocked by the browser.", error);
+        setIsAlarmPlaying(true); // Ensure button is shown even if autoplay fails
       });
     }
   }, []);

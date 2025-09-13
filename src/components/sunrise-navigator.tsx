@@ -20,7 +20,7 @@ function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: strin
     : originalTime;
 
   return (
-    <Card className="w-full max-w-md shadow-lg text-center">
+    <Card className="w-full max-w-md shadow-lg text-center backdrop-blur-sm bg-card/80">
       <CardHeader>
         <div className="flex justify-center">
             {trafficData ? <TrafficCone className="h-12 w-12 text-primary" /> : <Loader2 className="h-12 w-12 text-primary animate-spin" />}
@@ -144,7 +144,7 @@ export default function SunriseNavigator() {
   const renderContent = () => {
     if (view === 'welcome') {
       return (
-        <Card className="w-full max-w-md shadow-lg text-center">
+        <Card className="w-full max-w-md shadow-lg text-center backdrop-blur-sm bg-card/80">
             <CardHeader className="items-center">
                 <Sunrise className="h-12 w-12 text-primary" />
                 <CardTitle className="text-2xl font-bold">Welcome to Sunrise Navigator</CardTitle>
@@ -190,16 +190,14 @@ export default function SunriseNavigator() {
   }
 
   return (
-    <div className="relative w-full max-w-4xl p-4">
-      {isAlarmRinging && backgroundImage && (
-        <Image
+    <div className="relative w-full max-w-4xl p-4 min-h-[480px] flex items-center justify-center">
+       <Image
           src={backgroundImage.imageUrl}
           alt={backgroundImage.description}
           fill
-          className="object-cover -z-10 rounded-2xl opacity-30"
+          className="object-cover -z-10 rounded-2xl opacity-20 dark:opacity-10"
           data-ai-hint={backgroundImage.imageHint}
         />
-      )}
       <div
         className={cn(
           'flex justify-center items-center w-full transition-opacity duration-500',

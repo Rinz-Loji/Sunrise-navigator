@@ -99,7 +99,7 @@ export function AlarmSetup({
 
   if (isAlarmSet) {
     return (
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="w-full max-w-md shadow-lg backdrop-blur-sm bg-card/80">
         <CardHeader className="items-center text-center">
           <AlarmClock className="h-12 w-12 text-primary" />
           <CardTitle className="text-2xl font-bold">Alarm is Set</CardTitle>
@@ -144,7 +144,7 @@ export function AlarmSetup({
   }
 
   return (
-    <Card className="w-full max-w-2xl shadow-lg">
+    <Card className="w-full max-w-2xl shadow-lg backdrop-blur-sm bg-card/80">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold">
           <AlarmClock className="h-6 w-6" />
