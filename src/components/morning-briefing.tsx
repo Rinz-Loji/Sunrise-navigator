@@ -23,7 +23,6 @@ import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
-import { AlarmSound } from './alarm-sound';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
@@ -153,26 +152,7 @@ export function MorningBriefing({
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio && alarmSoundUrl) {
-      audio.src = alarmSoundUrl;
-      audio.play().then(() => {
-        setIsSoundPlaying(true);
-      }).catch(error => {
-        console.error("Audio play failed:", error);
-        // User might need to interact with the page first
-        setIsSoundPlaying(false);
-      });
-
-      return () => {
-        audio.pause();
-      };
-    }
-  }, [alarmSoundUrl]);
-
+  const [isSoundPlaying, setIsSoundPlaying] = useState(true);
 
   const stopSound = () => {
     if (audioRef.current) {
@@ -186,6 +166,25 @@ export function MorningBriefing({
     onReset();
   }
 
+  // This effect handles the case where the user has to interact first for sound to play.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const handleCanPlay = () => {
+        setIsSoundPlaying(true);
+      };
+      audio.addEventListener('canplay', handleCanPlay);
+      // If audio is paused externally (e.g. control center), update state.
+      const handlePause = () => setIsSoundPlaying(false);
+      audio.addEventListener('pause', handlePause);
+      
+      return () => {
+        audio.removeEventListener('canplay', handleCanPlay);
+        audio.removeEventListener('pause', handlePause);
+      }
+    }
+  }, []);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       <div className="text-center space-y-2 animate-fade-in-up">
@@ -193,7 +192,18 @@ export function MorningBriefing({
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
       </div>
 
-      <AlarmSound ref={audioRef} />
+      <audio
+        ref={audioRef}
+        src={alarmSoundUrl}
+        autoPlay
+        loop
+        // Hidden from the user, controlled by our buttons
+        style={{ display: 'none' }} 
+        onPlay={() => setIsSoundPlaying(true)}
+        onPause={() => setIsSoundPlaying(false)}
+      >
+        Your browser does not support the audio element.
+      </audio>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className={cn(animationDelays[0])}>
