@@ -151,34 +151,36 @@ export function MorningBriefing({
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    if (alarmSoundUrl && audioRef.current) {
-        audioRef.current.src = alarmSoundUrl;
-        audioRef.current.loop = true;
-        audioRef.current.play().then(() => {
-            setIsSoundPlaying(true);
-        }).catch((error) => {
-            console.error("Audio play failed:", error);
-            // Autoplay was blocked. User might need to click a button.
-            setIsSoundPlaying(false);
-        });
+    const audio = audioRef.current;
+    if (audio && alarmSoundUrl) {
+      audio.src = alarmSoundUrl;
+      audio.loop = true;
+      audio.play().then(() => {
+        setIsSoundPlaying(true);
+      }).catch((error) => {
+        console.error("Audio play failed. User interaction might be required.", error);
+        setIsSoundPlaying(false);
+      });
     }
 
-    // Cleanup function to pause sound when component unmounts
+    // Cleanup function to stop and reset audio when the component unmounts
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+      if (audio) {
+        audio.pause();
+        // Setting src to empty string is a common way to abort pending loads
+        audio.src = ''; 
       }
     };
   }, [alarmSoundUrl]);
 
+
   const stopSound = () => {
     if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.currentTime = 0;
         setIsSoundPlaying(false);
     }
   };
