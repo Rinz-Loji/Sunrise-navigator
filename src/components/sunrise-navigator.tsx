@@ -66,7 +66,7 @@ export default function SunriseNavigator() {
   }, []);
 
   const { toast } = useToast();
-  const backgroundImage = placeholderImages.placeholderImages[0];
+  const backgroundImage = placeholderImages.placeholderImages.find(img => img.id === 'sunrise-bg');
 
   const handleSetAlarm = (settings: AlarmSettings) => {
     setAlarmSettings(settings);
@@ -211,6 +211,10 @@ export default function SunriseNavigator() {
                 )
         }
     }
+  }
+
+  if (!backgroundImage) {
+    return <div>Error: Background image not found.</div>;
   }
 
   return (
