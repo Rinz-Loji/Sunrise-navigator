@@ -5,24 +5,24 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 224 71% 10%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
+    --background: 210 40% 98%;
+    --foreground: 224 71% 4%;
+    --card: 210 40% 96%;
+    --card-foreground: 224 71% 4%;
+    --popover: 210 40% 98%;
+    --popover-foreground: 224 71% 4%;
     --primary: 262 84% 60%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 210 40% 94%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
+    --accent: 210 40% 94%;
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 27%;
-    --input: 217 33% 17%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: 262 84% 60%;
     --radius: 0.8rem;
     --chart-1: 262 84% 60%;
@@ -79,7 +79,7 @@
     background-position: right center;
   }
   .card-glass {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    @apply bg-card/80 dark:bg-white/5 backdrop-blur-lg border border-border dark:border-white/10;
   }
 }
 
