@@ -1,6 +1,6 @@
 "use client";
 
-import type { AlarmSettings, MusicTrack } from '@/lib/types';
+import type { AlarmSettings } from '@/lib/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,14 +20,11 @@ import {
   BellRing,
   Music,
   MapPin,
-  Search,
 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { validateAddress as validateAddressAction, searchMusic as searchMusicAction } from '@/lib/actions';
+import { validateAddress as validateAddressAction } from '@/lib/actions';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -79,11 +76,6 @@ export function AlarmSetup({
 
   const [isvalidatingHome, setIsValidatingHome] = useState(false);
   const [isValidatingDestination, setIsValidatingDestination] = useState(false);
-  const [soundSelectionMode, setSoundSelectionMode] = useState<'default' | 'search'>('default');
-  const [musicSearchQuery, setMusicSearchQuery] = useState('');
-  const [musicSearchResults, setMusicSearchResults] = useState<MusicTrack[]>([]);
-  const [isSearchingMusic, setIsSearchingMusic] = useState(false);
-  const [noResultsFound, setNoResultsFound] = useState(false);
 
   const handleAddressValidation = async (
     field: 'home' | 'destination',
@@ -107,25 +99,6 @@ export function AlarmSetup({
     if (field === 'home') setIsValidatingHome(false);
     if (field === 'destination') setIsValidatingDestination(false);
   };
-  
-  const handleMusicSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!musicSearchQuery) return;
-
-    setIsSearchingMusic(true);
-    setMusicSearchResults([]);
-    setNoResultsFound(false);
-    
-    const results = await searchMusicAction({ query: musicSearchQuery });
-
-    if (results.length === 0) {
-      setNoResultsFound(true);
-    } else {
-      setMusicSearchResults(results);
-    }
-    setIsSearchingMusic(false);
-  };
-
 
   if (isAlarmSet) {
     return (
@@ -280,112 +253,27 @@ export function AlarmSetup({
                             <Music className="h-6 w-6" />
                             Alarm Sound
                         </FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            value={soundSelectionMode}
-                            onValueChange={(value: 'default' | 'search') => {
-                              setSoundSelectionMode(value);
-                              if (value === 'default') {
-                                form.setValue('alarmSound', defaultSounds[0].url);
-                                form.setValue('alarmSoundName', defaultSounds[0].name);
-                              } else {
-                                form.setValue('alarmSound', '');
-                                form.setValue('alarmSoundName', '');
-                              }
-                            }}
-                            className="flex items-center gap-4"
-                          >
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="default" />
-                              </FormControl>
-                              <FormLabel className="font-normal">Default Sounds</FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="search" />
-                              </FormControl>
-                              <FormLabel className="font-normal">Search Music</FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-
-                        {soundSelectionMode === 'default' && (
-                            <Select 
-                              onValueChange={(value) => {
-                                field.onChange(value)
-                                const soundName = defaultSounds.find(s => s.url === value)?.name
-                                form.setValue('alarmSoundName', soundName)
-                              }} 
-                              defaultValue={field.value}
-                            >
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value)
+                            const soundName = defaultSounds.find(s => s.url === value)?.name
+                            form.setValue('alarmSoundName', soundName)
+                          }} 
+                          defaultValue={field.value}
+                        >
+                            <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select an alarm sound" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                {defaultSounds.map(sound => (
-                                    <SelectItem key={sound.url} value={sound.url}>
-                                    {sound.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                        {soundSelectionMode === 'search' && (
-                          <div className="space-y-4 pt-2">
-                             <div className="flex gap-2">
-                                <Input 
-                                  placeholder="Search for a song..."
-                                  value={musicSearchQuery}
-                                  onChange={(e) => setMusicSearchQuery(e.target.value)}
-                                  onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                          handleMusicSearch(e);
-                                      }
-                                  }}
-                                />
-                                <Button type="button" onClick={handleMusicSearch} variant="secondary" disabled={isSearchingMusic}>
-                                  {isSearchingMusic ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
-                                </Button>
-                              </div>
-
-                            {isSearchingMusic && <div className="text-center p-4">Searching...</div>}
-                            
-                            {noResultsFound && <div className="text-center p-4 text-muted-foreground">No tracks found. Try another search.</div>}
-                            
-                            {musicSearchResults.length > 0 && (
-                              <div className="space-y-3 max-h-60 overflow-y-auto p-1">
-                                {musicSearchResults.map(track => (
-                                  <div 
-                                    key={track.url} 
-                                    className={cn(
-                                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-lg p-3 border",
-                                      form.getValues('alarmSound') === track.url ? 'border-primary bg-primary/10' : 'border-transparent'
-                                    )}
-                                    >
-                                    <div className="flex-grow">
-                                      <p className="font-semibold">{track.name}</p>
-                                      <p className="text-sm text-muted-foreground">{track.artist}</p>
-                                      <audio controls src={track.url} className="w-full mt-2 h-8"></audio>
-                                    </div>
-                                    <Button 
-                                      type="button" 
-                                      size="sm" 
-                                      variant={form.getValues('alarmSound') === track.url ? 'default' : 'outline'}
-                                      onClick={() => {
-                                        form.setValue('alarmSound', track.url);
-                                        form.setValue('alarmSoundName', `${track.name} - ${track.artist}`);
-                                      }}
-                                    >
-                                      Select
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                          </div>
-                        )}
+                            </FormControl>
+                            <SelectContent>
+                            {defaultSounds.map(sound => (
+                                <SelectItem key={sound.url} value={sound.url}>
+                                {sound.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                     </FormItem>
                 )}
