@@ -60,9 +60,22 @@ export default function SunriseNavigator() {
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
   
   const [isMounted, setIsMounted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    // Initialize audio element
+    audioRef.current = new Audio();
+    audioRef.current.loop = true;
+
+    // Cleanup on unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, []);
 
   const { toast } = useToast();
@@ -86,8 +99,34 @@ export default function SunriseNavigator() {
     });
   };
 
+  const stopSound = () => {
+    if (audioRef.current && isSoundPlaying) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSoundPlaying(false);
+    }
+  };
+
+
   const handleSimulateAlarm = async () => {
-    if (!alarmSettings) return;
+    if (!alarmSettings || !audioRef.current) return;
+
+    // Play sound immediately on user interaction
+    try {
+        if (audioRef.current.src !== alarmSettings.sound) {
+            audioRef.current.src = alarmSettings.sound;
+        }
+        await audioRef.current.play();
+        setIsSoundPlaying(true);
+    } catch (error) {
+        console.error("Audio play failed:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Audio Error',
+            description: 'Could not play the alarm sound.',
+        });
+        // We can still proceed with the briefing even if sound fails
+    }
 
     setIsSimulating(true);
     setAppView('checkingTraffic');
@@ -123,6 +162,7 @@ export default function SunriseNavigator() {
       setAppView('briefing');
     } catch (error) {
       console.error(error);
+      stopSound(); // Stop sound if there's an error
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -135,6 +175,7 @@ export default function SunriseNavigator() {
   };
 
   const handleReset = () => {
+    stopSound();
     setAppView('setup');
     setIsAlarmSet(false);
     setBriefingData(null);
@@ -187,7 +228,8 @@ export default function SunriseNavigator() {
                         briefingData={briefingData}
                         quote={quote}
                         alarmTime={alarmDisplayTime}
-                        alarmSoundUrl={alarmSettings.sound}
+                        isSoundPlaying={isSoundPlaying}
+                        stopSound={stopSound}
                         onReset={handleReset}
                         />
                     </div>
@@ -236,3 +278,5 @@ export default function SunriseNavigator() {
     </div>
   );
 }
+
+    

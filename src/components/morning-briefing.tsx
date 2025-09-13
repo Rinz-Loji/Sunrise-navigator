@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, RefObject } from 'react';
+import { useEffect } from 'react';
 import type { BriefingData, MotivationalQuote } from '@/lib/types';
 import {
   Cloudy,
@@ -17,18 +17,18 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoCard } from './info-card';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addMinutes, format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
-import { AlarmSound } from './alarm-sound';
 
 interface MorningBriefingProps {
   briefingData: BriefingData;
   quote: MotivationalQuote;
   alarmTime: string | null;
-  alarmSoundUrl: string;
+  isSoundPlaying: boolean;
+  stopSound: () => void;
   onReset: () => void;
 }
 
@@ -147,49 +147,26 @@ export function MorningBriefing({
   briefingData,
   quote,
   alarmTime,
-  alarmSoundUrl,
+  isSoundPlaying,
+  stopSound,
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const [isSoundPlaying, setIsSoundPlaying] = useState(true);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.src = alarmSoundUrl;
-      audio.play().catch(error => {
-        console.warn("Audio autoplay was prevented. User may need to interact with the page first.", error);
-        // In a real app, you might show a "Click to play" button here
-        setIsSoundPlaying(false);
-      });
-      audio.onended = () => setIsSoundPlaying(false);
-    }
-
-    return () => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    };
-  }, [alarmSoundUrl]);
-
-  const handleStopSound = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsSoundPlaying(false);
-    }
-  };
 
   const handleReset = () => {
-    handleStopSound();
+    stopSound();
     onReset();
   }
 
+  // Ensure sound stops if component unmounts unexpectedly
+  useEffect(() => {
+    return () => {
+      stopSound();
+    };
+  }, [stopSound]);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-       <AlarmSound ref={audioRef} />
       <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
@@ -212,7 +189,7 @@ export function MorningBriefing({
       
       <div className="text-center flex items-center justify-center gap-4 animate-fade-in-up-delay-4">
         {isSoundPlaying && (
-            <Button variant="destructive" onClick={handleStopSound}>
+            <Button variant="destructive" onClick={stopSound}>
               <VolumeX className="mr-2 h-4 w-4" />
               Stop Alarm
             </Button>
@@ -289,3 +266,5 @@ export function MorningBriefingSkeleton() {
         </div>
     );
 }
+
+    
