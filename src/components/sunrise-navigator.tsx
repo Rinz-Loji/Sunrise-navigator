@@ -157,7 +157,10 @@ export default function SunriseNavigator() {
             <Card className="w-full max-w-xl text-center card-glass">
                 <CardHeader className="items-center p-8">
                     <Sunrise className="h-32 w-32 text-primary" />
-                    <CardTitle className="text-4xl font-bold mt-4">Sunrise Navigator</CardTitle>
+                    <p className="text-sm font-medium text-primary tracking-widest uppercase mt-4">
+                        World's best smart alarm clock
+                    </p>
+                    <CardTitle className="text-4xl font-bold mt-2">Sunrise Navigator</CardTitle>
                     <CardDescription className="text-lg">No ordinary alarms anymore!</CardDescription>
                 </CardHeader>
                 <CardContent>
