@@ -57,9 +57,12 @@ const WeatherCard = ({ data }: { data: BriefingData['weather'] }) => (
   </InfoCard>
 );
 
-const TrafficCard = ({ data }: { data: BriefingData['traffic']}) => {
+const TrafficCard = ({ data, alarmTime }: { data: BriefingData['traffic'], alarmTime: string | null }) => {
   const { toast } = useToast();
   const hasSuggestion = data.suggestion && data.delay > 0;
+  
+  const estimatedArrivalTime = alarmTime ? format(addMinutes(parse(alarmTime, 'HH:mm', new Date()), data.commuteTime), 'HH:mm') : null;
+
 
   const handleAdjust = () => {
     toast({
@@ -70,13 +73,22 @@ const TrafficCard = ({ data }: { data: BriefingData['traffic']}) => {
 
   return (
     <InfoCard title="Your Commute" icon={Car}>
-        <div className="flex items-baseline gap-2">
-            <div className="text-2xl font-bold">{data.commuteTime}</div>
-            <span className="text-xs">mins</span>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <div className="flex items-baseline gap-2">
+              <div className="text-2xl font-bold">{data.commuteTime}</div>
+              <span className="text-xs">mins</span>
+          </div>
+          {data.delay > 0 && <div className="text-sm font-semibold text-orange-400 mt-1">+{data.delay} min delay</div>}
         </div>
-       
-        {data.delay > 0 && <div className="text-sm font-semibold text-orange-400 mt-1">+{data.delay} min delay</div>}
-      <p className="text-xs text-muted-foreground mt-1">
+        {estimatedArrivalTime && (
+            <div className="text-right">
+              <div className="text-2xl font-bold">{estimatedArrivalTime}</div>
+              <p className="text-xs text-muted-foreground">Est. Time</p>
+          </div>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground mt-2">
         To {data.destination}
       </p>
       {hasSuggestion && (
@@ -137,43 +149,27 @@ export function MorningBriefing({
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+  const [isSoundPlaying, setIsSoundPlaying] = useState(true);
 
-  useEffect(() => {
+   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
-      // Set playing state on successful play
-      const handlePlay = () => setIsSoundPlaying(true);
-      audio.addEventListener('play', handlePlay);
-
-      // Set playing state to false when paused
-      const handlePause = () => setIsSoundPlaying(false);
-      audio.addEventListener('pause', handlePause);
-      
-      // Attempt to play
-      audio.play().catch(error => {
-        // Autoplay was prevented.
-        console.error("Audio play failed:", error);
-        setIsSoundPlaying(false);
-      });
-
-      return () => {
-        // Cleanup listeners
-        audio.removeEventListener('play', handlePlay);
-        audio.removeEventListener('pause', handlePause);
-        
-        // Also pause and reset the audio source on cleanup to be safe
-        audio.pause();
-        // Setting src to empty string is a common way to abort pending loads
-        audio.src = ''; 
-      };
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Audio play was prevented:", error);
+          // If autoplay is blocked, we can't force it.
+          // We'll update the UI to show a play button.
+          setIsSoundPlaying(false);
+        });
+      }
     }
-  }, [alarmSoundUrl]); // Re-run effect if the sound URL changes
-
+  }, []);
 
   const stopSound = () => {
     if (audioRef.current) {
         audioRef.current.pause();
+        setIsSoundPlaying(false);
     }
   };
 
@@ -194,6 +190,7 @@ export function MorningBriefing({
         ref={audioRef}
         src={alarmSoundUrl}
         loop
+        autoPlay
         // Hidden from the user, controlled by our buttons
         style={{ display: 'none' }} 
       >
@@ -205,7 +202,7 @@ export function MorningBriefing({
             <WeatherCard data={briefingData.weather} />
         </div>
         <div className={cn(animationDelays[1])}>
-            <TrafficCard data={briefingData.traffic}/>
+            <TrafficCard data={briefingData.traffic} alarmTime={alarmTime}/>
         </div>
         <div className={cn("md:col-span-2", animationDelays[2])}>
             <NewsCard data={briefingData.news} />
@@ -220,6 +217,12 @@ export function MorningBriefing({
             <Button variant="destructive" onClick={stopSound}>
               <VolumeX className="mr-2 h-4 w-4" />
               Stop Alarm
+            </Button>
+        )}
+        {!isSoundPlaying && (
+           <Button onClick={() => audioRef.current?.play().then(() => setIsSoundPlaying(true))}>
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Play Sound
             </Button>
         )}
         <Button variant="outline" onClick={handleReset}>
@@ -294,5 +297,7 @@ export function MorningBriefingSkeleton() {
         </div>
     );
 }
+
+    
 
     
