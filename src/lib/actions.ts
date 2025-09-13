@@ -5,7 +5,7 @@ import { getTrafficInfo as getTrafficInfoFlow } from '@/ai/flows/traffic-analyze
 import { getWeatherData as getWeatherDataFlow } from '@/ai/flows/weather-flow';
 import { getNewsHeadlines as getNewsHeadlinesFlow } from '@/ai/flows/news-flow';
 import { validateAddress as validateAddressFlow } from '@/ai/flows/address-validator-flow';
-import { searchMusic as searchMusicFlow } from '@/ai/flows/deezer-search-flow';
+import { searchMusic as searchMusicFlow } from '@/ai/flows/audius-search-flow';
 import type { BriefingData, MotivationalQuote, MusicTrack, NewsHeadline, TrafficData, WeatherData } from './types';
 
 // Mock function to simulate API calls
