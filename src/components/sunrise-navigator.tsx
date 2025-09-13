@@ -146,6 +146,15 @@ export default function SunriseNavigator() {
   
   const alarmDisplayTime = adjustedAlarmTime || alarmSettings?.time || '';
 
+  const getPlayableAlarmSound = (soundUrl: string) => {
+    // If the URL is from Last.fm, it's a webpage, not a playable audio file.
+    // In that case, we fall back to a default playable sound.
+    if (soundUrl.includes('last.fm')) {
+      return 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg';
+    }
+    return soundUrl;
+  }
+
   const renderContent = () => {
      if (!isMounted) {
       return null;
@@ -186,7 +195,7 @@ export default function SunriseNavigator() {
                         briefingData={briefingData}
                         quote={quote}
                         alarmTime={alarmDisplayTime}
-                        alarmSoundUrl={alarmSettings.alarmSound}
+                        alarmSoundUrl={getPlayableAlarmSound(alarmSettings.alarmSound)}
                         onReset={handleReset}
                         />
                     </div>
