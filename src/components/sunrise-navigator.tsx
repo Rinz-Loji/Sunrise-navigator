@@ -187,6 +187,7 @@ export default function SunriseNavigator() {
                         briefingData={briefingData}
                         quote={quote}
                         alarmTime={alarmDisplayTime}
+                        alarmSoundUrl={alarmSettings.sound}
                         onReset={handleReset}
                         />
                     </div>

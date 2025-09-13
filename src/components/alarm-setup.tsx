@@ -24,6 +24,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { validateAddress as validateAddressAction } from '@/lib/actions';
 import { useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface AlarmSetupProps {
   onSetAlarm: (settings: AlarmSettings) => void;
@@ -39,7 +40,16 @@ const alarmSchema = z.object({
   home: z.string().min(3, 'Home location is required'),
   destination: z.string().min(3, 'Destination is required'),
   weatherLocation: z.string().min(3, 'Weather location is required'),
+  sound: z.string().url('Please select a sound'),
 });
+
+const defaultSounds = [
+  { name: 'Classic Alarm', url: 'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3' },
+  { name: 'Gentle Bells', url: 'https://assets.mixkit.co/sfx/preview/mixkit-chimes-in-the-wind-1031.mp3' },
+  { name: 'Birds Chirping', url: 'https://assets.mixkit.co/sfx/preview/mixkit-morning-birds-singing-2467.mp3' },
+  { name: 'Soft Chimes', url: 'https://assets.mixkit.co/sfx/preview/mixkit-magic-chime-1572.mp3' },
+  { name: 'Calm Ocean', url: 'https://assets.mixkit.co/sfx/preview/mixkit-sea-waves-in-a-calm-day-1166.mp3' },
+];
 
 export function AlarmSetup({
   onSetAlarm,
@@ -56,6 +66,7 @@ export function AlarmSetup({
       home: '1600 Amphitheatre Parkway, Mountain View, CA',
       destination: '1 Market St, San Francisco, CA',
       weatherLocation: 'San Francisco, CA',
+      sound: defaultSounds[0].url,
     },
   });
 
@@ -178,8 +189,34 @@ export function AlarmSetup({
                     </FormItem>
                   )}
                 />
-                
             </div>
+             <FormField
+                control={form.control}
+                name="sound"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel className="flex items-center gap-3">
+                        <Music className="h-6 w-6" />
+                        Alarm Sound
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an alarm sound" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {defaultSounds.map(sound => (
+                            <SelectItem key={sound.url} value={sound.url}>
+                            {sound.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
             <FormField
               control={form.control}
               name="home"
