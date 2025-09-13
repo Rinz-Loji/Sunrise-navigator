@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Loader2, ArrowRight, TrafficCone, Sunrise } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
 
 function TrafficCheckScreen({ originalTime, trafficData }: { originalTime: string, trafficData: TrafficData | null }) {
   const newTime = trafficData && trafficData.delay > 0
@@ -191,6 +192,9 @@ export default function SunriseNavigator() {
 
   return (
     <div className="relative w-full max-w-4xl p-4 min-h-[480px] flex items-center justify-center">
+       <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+       </div>
        <Image
           src={backgroundImage.imageUrl}
           alt={backgroundImage.description}
