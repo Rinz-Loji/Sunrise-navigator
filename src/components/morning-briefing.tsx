@@ -151,30 +151,34 @@ export function MorningBriefing({
   onReset,
 }: MorningBriefingProps) {
   const greeting = `Good morning! It's ${alarmTime}.`;
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (audio && alarmSoundUrl) {
-      audio.src = alarmSoundUrl;
-      audio.loop = true;
-      audio.play().then(() => {
-        setIsSoundPlaying(true);
-      }).catch((error) => {
-        console.error("Audio play failed. User interaction might be required.", error);
-        setIsSoundPlaying(false);
-      });
-    }
+    // Create the audio element when the component mounts
+    audioRef.current = new Audio();
+    audioRef.current.loop = true;
 
     // Cleanup function to stop and reset audio when the component unmounts
     return () => {
-      if (audio) {
-        audio.pause();
-        // Setting src to empty string is a common way to abort pending loads
-        audio.src = ''; 
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
+  }, []);
+
+  useEffect(() => {
+    // Play sound when the url is available
+    if (alarmSoundUrl && audioRef.current) {
+        audioRef.current.src = alarmSoundUrl;
+        audioRef.current.play().then(() => {
+            setIsSoundPlaying(true);
+        }).catch((error) => {
+            console.error("Audio play failed. User interaction might be required.", error);
+            setIsSoundPlaying(false);
+        });
+    }
   }, [alarmSoundUrl]);
 
 
@@ -192,7 +196,6 @@ export function MorningBriefing({
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-        <audio ref={audioRef} />
       <div className="text-center space-y-2 animate-fade-in-up">
         <h1 className="text-4xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">Here's your daily briefing to get you started.</p>
