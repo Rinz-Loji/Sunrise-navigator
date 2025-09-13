@@ -156,15 +156,15 @@ export function AlarmSetup({
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSetAlarm)}>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="space-y-8 pt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField
                   control={form.control}
                   name="time"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <AlarmClock className="h-4 w-4" />
+                      <FormLabel className="flex items-center gap-3">
+                        <AlarmClock className="h-5 w-5" />
                         Wake-up Time
                       </FormLabel>
                       <FormControl>
@@ -179,8 +179,8 @@ export function AlarmSetup({
                   name="weatherLocation"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
+                      <FormLabel className="flex items-center gap-3">
+                        <MapPin className="h-5 w-5" />
                         Weather Location
                       </FormLabel>
                       <FormControl>
@@ -190,41 +190,15 @@ export function AlarmSetup({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="alarmSound"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Music className="h-4 w-4" />
-                        Alarm Sound
-                      </FormLabel>
-                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an alarm sound" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {alarmSounds.map(sound => (
-                            <SelectItem key={sound.url} value={sound.url}>
-                              {sound.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
             </div>
-             <FormField
+            <FormField
               control={form.control}
               name="home"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
+                  <FormLabel className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5" />
                     Home Address
                     {isvalidatingHome && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
@@ -244,8 +218,8 @@ export function AlarmSetup({
               name="destination"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
+                  <FormLabel className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5" />
                     Work/School Address
                      {isValidatingDestination && <Loader2 className="h-4 w-4 animate-spin" />}
                   </FormLabel>
@@ -260,6 +234,33 @@ export function AlarmSetup({
                 </FormItem>
               )}
             />
+             <FormField
+                  control={form.control}
+                  name="alarmSound"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-3">
+                        <Music className="h-5 w-5" />
+                        Alarm Sound
+                      </FormLabel>
+                       <Select onValuechange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Select an alarm sound" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {alarmSounds.map(sound => (
+                            <SelectItem key={sound.url} value={sound.url}>
+                              {sound.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full btn-gradient">
