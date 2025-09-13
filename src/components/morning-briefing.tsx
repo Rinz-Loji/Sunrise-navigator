@@ -161,9 +161,14 @@ export function MorningBriefing({
         // Cleanup listeners
         audio.removeEventListener('play', handlePlay);
         audio.removeEventListener('pause', handlePause);
+        
+        // Also pause and reset the audio source on cleanup to be safe
+        audio.pause();
+        // Setting src to empty string is a common way to abort pending loads
+        audio.src = ''; 
       };
     }
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, [alarmSoundUrl]); // Re-run effect if the sound URL changes
 
 
   const stopSound = () => {
@@ -289,3 +294,5 @@ export function MorningBriefingSkeleton() {
         </div>
     );
 }
+
+    
